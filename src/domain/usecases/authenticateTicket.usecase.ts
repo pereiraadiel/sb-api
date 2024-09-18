@@ -1,6 +1,6 @@
-import { ActiveTicketEntity } from '@/domain/entities/activeTicket.entity';
 import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
 import { TicketRepository } from '@/domain/repositories/ticket.respository';
+import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
 
 export class AuthenticateTicketUsecase {
   constructor(
@@ -8,7 +8,7 @@ export class AuthenticateTicketUsecase {
     private readonly activeTicketRepository: ActiveTicketRepository,
   ) {}
 
-  async execute(code: string, emoji: string): Promise<ActiveTicketEntity> {
+  async execute(code: string, emoji: string) {
     try {
       const ticket = await this.ticketRepository.findByCode(code);
       if (!ticket) {
@@ -31,7 +31,7 @@ export class AuthenticateTicketUsecase {
         throw new Error('Invalid emoji');
       }
 
-      return activeTicket;
+      return activeTicketToResponseMapper(activeTicket);
     } catch (error) {
       throw new Error(error.message);
     }

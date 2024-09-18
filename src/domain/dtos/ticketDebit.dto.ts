@@ -7,4 +7,7 @@ export type CreateTicketDebitDto = Omit<
 
 export type TicketDebitFiltersDto = {
   activeTicketId: string;
+  createdAt: {
+    greaterThan: Date;
+  };
 };

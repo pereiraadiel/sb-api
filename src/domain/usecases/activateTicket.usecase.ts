@@ -1,6 +1,7 @@
 import { EMOJIS } from '@/domain/utils/emoji.util';
 import { TicketRepository } from '@/domain/repositories/ticket.respository';
 import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
 
 export class ActivateTicketUsecase {
   constructor(
@@ -35,7 +36,7 @@ export class ActivateTicketUsecase {
         activeUntil,
       });
 
-      return activeTicket;
+      return activeTicketToResponseMapper(activeTicket);
     } catch (error) {
       throw new Error(error.message);
     }

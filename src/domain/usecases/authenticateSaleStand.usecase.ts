@@ -1,7 +1,7 @@
 import { SaleStandRepository } from '@/domain/repositories/saleStand.respository';
 import { EncodeUtil } from '@/domain/utils/encode.util';
 import { TokenService } from '@/domain/services/token.service';
-import { saleStandToResponseMapper } from '../mappers/saleStandToResponse.mapper';
+import { saleStandToResponseMapper } from '@/domain/mappers/saleStandToResponse.mapper';
 
 export class AuthenticateSaleStand {
   constructor(

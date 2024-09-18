@@ -1,6 +1,6 @@
 import { TicketRepository } from '@/domain/repositories/ticket.respository';
 import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { EMOJIS } from '../utils/emoji.util';
+import { EMOJIS } from '@/domain/utils/emoji.util';
 
 export class GetTicketEmojisToAuthenticateUsecase {
   constructor(

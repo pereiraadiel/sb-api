@@ -4,3 +4,10 @@ export type CreateSaleStandGoodDto = Omit<
   SaleStandGoodEntity,
   'id' | 'createdAt' | 'good' | 'saleStand'
 >;
+
+export type AssociateGoodToSaleStandDto = {
+  goodId: string;
+  saleStandId: string;
+  priceCents: number;
+  stock: number;
+};
