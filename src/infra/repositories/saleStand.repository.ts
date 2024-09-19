@@ -19,9 +19,11 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 					category: saleStand.category,
 					id: generateId(),
 				}
-			})
+			});
 
-			return new SaleStandEntity(createdSaleStand);
+			if(!createdSaleStand) return null;
+
+			return new SaleStandEntity(createdSaleStand, createdSaleStand.id);
     } catch (error) {
       throw error;
     }
@@ -35,7 +37,9 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 				},
 			});
 
-			return new SaleStandEntity(saleStandEntity);
+			if(!saleStandEntity) return null;
+
+			return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
     } catch (error) {
       throw error;
     }
@@ -49,7 +53,9 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 				},
 			});
 
-			return new SaleStandEntity(saleStandEntity);
+			if(!saleStandEntity) return null;
+
+			return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
     } catch (error) {
       throw error;
     }

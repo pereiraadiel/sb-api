@@ -1,11 +1,15 @@
 import { EMOJIS } from '@/domain/utils/emoji.util';
-import { TicketRepository } from '@/domain/repositories/ticket.respository';
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
 import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ActivateTicketUsecase {
   constructor(
+    @Inject(TICKET_REPOSITORY)
     private ticketRepository: TicketRepository,
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private activeTicketRepository: ActiveTicketRepository,
   ) {}
 
@@ -27,7 +31,7 @@ export class ActivateTicketUsecase {
           Math.floor(Math.random() * Object.keys(EMOJIS).length)
         ];
       const activeUntil = new Date();
-      activeUntil.setDate(activeUntil.getDate() + 30); // valid for 30 day
+      activeUntil.setDate(activeUntil.getDate() + 3); // valid for 3 days
 
       const activeTicket = await this.activeTicketRepository.create({
         ticketId: ticket.id,
@@ -36,7 +40,7 @@ export class ActivateTicketUsecase {
         activeUntil,
       });
 
-      return activeTicketToResponseMapper(activeTicket);
+      return {...activeTicketToResponseMapper(activeTicket), emoji: activeTicket.emoji};
     } catch (error) {
       throw new Error(error.message);
     }

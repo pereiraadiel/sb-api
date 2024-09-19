@@ -1,11 +1,15 @@
-import { SaleStandRepository } from '@/domain/repositories/saleStand.respository';
+import { SALE_STAND_REPOSITORY, SaleStandRepository } from '@/domain/repositories/saleStand.respository';
 import { EncodeUtil } from '@/domain/utils/encode.util';
-import { TokenService } from '@/domain/services/token.service';
+import { TOKEN_SERVICE, TokenService } from '@/domain/services/token.service';
 import { saleStandToResponseMapper } from '@/domain/mappers/saleStandToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class AuthenticateSaleStand {
   constructor(
+    @Inject(SALE_STAND_REPOSITORY)
     private readonly saleStandRepository: SaleStandRepository,
+    @Inject(TOKEN_SERVICE)
     private readonly tokenService: TokenService,
   ) {}
 

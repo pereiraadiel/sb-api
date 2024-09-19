@@ -1,7 +1,13 @@
-import nanoid from 'nanoid';
+// import { customAlphabet } from "nanoid";
 
 function genRandomString(length: number, characters: string) {
-  return nanoid.customAlphabet(characters, length)();
+  // return customAlphabet(characters, length)();
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 /**

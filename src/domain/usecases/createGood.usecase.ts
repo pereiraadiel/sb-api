@@ -1,9 +1,17 @@
-import { GoodRepository } from '@/domain/repositories/good.respository';
+import {
+  GOOD_REPOSITORY,
+  GoodRepository,
+} from '@/domain/repositories/good.respository';
 import { CreateGoodDto } from '@/domain/dtos/good.dto';
 import { goodToResponseMapper } from '@/domain/mappers/goodToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class CreateGoodUsecase {
-  constructor(private readonly goodRepository: GoodRepository) {}
+  constructor(
+    @Inject(GOOD_REPOSITORY)
+    private readonly goodRepository: GoodRepository,
+  ) {}
 
   async execute(good: CreateGoodDto) {
     try {

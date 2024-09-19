@@ -22,7 +22,9 @@ export class ConcreteGoodRepository implements GoodRepository {
         },
       });
 
-      return new GoodEntity(createdGood);
+      if(!createdGood) return null;
+
+      return new GoodEntity(createdGood, createdGood.id);
     } catch (error) {
       throw error;
     }
@@ -36,7 +38,9 @@ export class ConcreteGoodRepository implements GoodRepository {
 				},
 			});
 
-			return new GoodEntity(good);
+      if(!good) return null;
+
+			return new GoodEntity(good, good.id);
 		} catch (error) {
 			throw error;
 		}

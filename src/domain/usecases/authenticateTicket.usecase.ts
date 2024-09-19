@@ -1,10 +1,14 @@
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { TicketRepository } from '@/domain/repositories/ticket.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
 import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class AuthenticateTicketUsecase {
   constructor(
+    @Inject(TICKET_REPOSITORY)
     private readonly ticketRepository: TicketRepository,
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private readonly activeTicketRepository: ActiveTicketRepository,
   ) {}
 

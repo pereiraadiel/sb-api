@@ -1,13 +1,19 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { CreateTicketDebitDto } from '@/domain/dtos/ticketDebit.dto';
-import { TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { SaleStandGoodRepository } from '@/domain/repositories/saleStandGood.respository';
+import { TICKET_DEBIT_REPOSITORY, TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { SALE_STAND_GOOD_REPOSITORY, SaleStandGoodRepository } from '@/domain/repositories/saleStandGood.respository';
 import { ticketDebitToResponseMapper } from '@/domain/mappers/ticketDebitToResponse.mapper';
 
-export class DebitTicket {
+@Injectable()
+export class DebitTicketUsecase {
   constructor(
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private readonly activeTicketRepository: ActiveTicketRepository,
+    @Inject(TICKET_DEBIT_REPOSITORY)
     private readonly ticketDebitRepository: TicketDebitRepository,
+    @Inject(SALE_STAND_GOOD_REPOSITORY)
     private readonly saleStandGoodRepository: SaleStandGoodRepository,
   ) {}
 

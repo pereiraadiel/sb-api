@@ -1,11 +1,16 @@
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
-import { TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { TICKET_CREDIT_REPOSITORY, TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
+import { TICKET_DEBIT_REPOSITORY, TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class GetActiveTicketBalanceUsecase {
   constructor(
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private readonly activeTicketRepository: ActiveTicketRepository,
+    @Inject(TICKET_CREDIT_REPOSITORY)
     private readonly ticketCreditRepository: TicketCreditRepository,
+    @Inject(TICKET_DEBIT_REPOSITORY)
     private readonly ticketDebitRepository: TicketDebitRepository,
   ) {}
 

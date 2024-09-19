@@ -1,11 +1,15 @@
 import { CreateTicketCreditDto } from '@/domain/dtos/ticketCredit.dto';
-import { TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { TICKET_CREDIT_REPOSITORY, TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
 import { ticketCreditToResponseMapper } from '@/domain/mappers/ticketCreditToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
-export class CreditTicket {
+@Injectable()
+export class CreditTicketUsecase {
   constructor(
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private readonly activeTicketRepository: ActiveTicketRepository,
+    @Inject(TICKET_CREDIT_REPOSITORY)
     private readonly ticketCreditRepository: TicketCreditRepository,
   ) {}
 

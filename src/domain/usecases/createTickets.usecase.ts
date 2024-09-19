@@ -1,10 +1,18 @@
-import { TicketRepository } from '@/domain/repositories/ticket.respository';
+import {
+  TICKET_REPOSITORY,
+  TicketRepository,
+} from '@/domain/repositories/ticket.respository';
 import { TicketEntity } from '@/domain/entities/ticket.entity';
 import { generatePhysicalCode } from '@/domain/utils/generators.util';
-import { ticketToResponseMapper } from '../mappers/ticketToResponse.mapper';
+import { ticketToResponseMapper } from '@/domain/mappers/ticketToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class CreateTicketsUsecase {
-  constructor(private readonly ticketRepository: TicketRepository) {}
+  constructor(
+    @Inject(TICKET_REPOSITORY)
+    private readonly ticketRepository: TicketRepository,
+  ) {}
 
   async execute(quantity: number) {
     try {

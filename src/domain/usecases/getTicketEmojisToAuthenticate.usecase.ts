@@ -1,10 +1,14 @@
-import { TicketRepository } from '@/domain/repositories/ticket.respository';
-import { ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
+import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
 import { EMOJIS } from '@/domain/utils/emoji.util';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class GetTicketEmojisToAuthenticateUsecase {
   constructor(
+    @Inject(TICKET_REPOSITORY)
     private readonly ticketRepository: TicketRepository,
+    @Inject(ACTIVE_TICKET_REPOSITORY)
     private readonly activeTicketRepository: ActiveTicketRepository,
   ) {}
 

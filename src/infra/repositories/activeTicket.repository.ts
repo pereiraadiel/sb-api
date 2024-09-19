@@ -33,7 +33,9 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
         },
       });
 
-      return new ActiveTicketEntity(activeTicket);
+      if(!activeTicket) return null
+
+      return new ActiveTicketEntity(activeTicket,activeTicket.id);
     } catch (error) {
       throw error;
     }
@@ -57,7 +59,9 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
 				},
 			});
 
-			return activeTickets.map((activeTicket) => new ActiveTicketEntity(activeTicket));
+      if(!activeTickets) return null;
+
+			return activeTickets.map((activeTicket) => new ActiveTicketEntity(activeTicket, activeTicket.id));
 		} catch (error) {
 			throw error;
 		}

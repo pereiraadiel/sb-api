@@ -1,8 +1,16 @@
-import { TicketRepository } from '@/domain/repositories/ticket.respository';
+import {
+  TICKET_REPOSITORY,
+  TicketRepository,
+} from '@/domain/repositories/ticket.respository';
 import { ticketToResponseMapper } from '@/domain/mappers/ticketToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class GetTicketByCodeUsecase {
-  constructor(private readonly ticketRepository: TicketRepository) {}
+  constructor(
+    @Inject(TICKET_REPOSITORY)
+    private readonly ticketRepository: TicketRepository,
+  ) {}
 
   async execute(code: string) {
     try {

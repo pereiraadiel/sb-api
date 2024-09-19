@@ -1,13 +1,18 @@
 import { AssociateGoodToSaleStandDto } from '@/domain/dtos/saleStandGood.dto';
-import { GoodRepository } from '@/domain/repositories/good.respository';
-import { SaleStandRepository } from '@/domain/repositories/saleStand.respository';
-import { SaleStandGoodRepository } from '@/domain/repositories/saleStandGood.respository';
+import { GOOD_REPOSITORY, GoodRepository } from '@/domain/repositories/good.respository';
+import { SALE_STAND_REPOSITORY, SaleStandRepository } from '@/domain/repositories/saleStand.respository';
+import { SALE_STAND_GOOD_REPOSITORY, SaleStandGoodRepository } from '@/domain/repositories/saleStandGood.respository';
 import { saleStandGoodToResponseMapper } from '@/domain/mappers/saleStandGoodToResponse.mapper';
+import { Inject, Injectable } from '@nestjs/common';
 
+@Injectable()
 export class AssociateGoodToSaleStand {
   constructor(
+    @Inject(GOOD_REPOSITORY)
     private readonly goodRepository: GoodRepository,
+    @Inject(SALE_STAND_REPOSITORY)
     private readonly saleStandRepository: SaleStandRepository,
+    @Inject(SALE_STAND_GOOD_REPOSITORY)
     private readonly saleStandGoodRepository: SaleStandGoodRepository,
   ) {}
 
@@ -35,6 +40,7 @@ export class AssociateGoodToSaleStand {
       if (alreadyAssociated) {
         const saleStandGood = await this.saleStandGoodRepository.update({
           ...dto,
+          id: alreadyAssociated.id,
           priceCents: dto.priceCents,
         });
 
