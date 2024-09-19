@@ -16,9 +16,7 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 					code: saleStand.code,
 					fullname: saleStand.fullname,
 					category: saleStand.category,
-					goods: {
-						create: saleStand.,
-					}
+					goods: undefined
 				}
 			})
     } catch (error) {
