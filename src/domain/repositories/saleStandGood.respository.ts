@@ -1,10 +1,10 @@
 import { SaleStandGoodEntity } from '@/domain/entities/saleStandGood.entity';
-import { CreateSaleStandGoodDto } from '@/domain/dtos/saleStandGood.dto';
+import { CreateSaleStandGoodDto, UpdateSaleStandGoodDto } from '@/domain/dtos/saleStandGood.dto';
 
 export interface SaleStandGoodRepository {
   create(saleStandGood: CreateSaleStandGoodDto): Promise<SaleStandGoodEntity>;
   update(
-    saleStandGood: CreateSaleStandGoodDto,
+    saleStandGood: UpdateSaleStandGoodDto,
   ): Promise<SaleStandGoodEntity | null>;
   updateStock(id: string, stock: number): Promise<SaleStandGoodEntity | null>;
   findById(id: string): Promise<SaleStandGoodEntity | null>;

@@ -15,7 +15,7 @@ export class SaleStandGoodEntity {
   saleStand?: SaleStandEntity;
   sales?: TicketDebitEntity[] = [];
 
-  constructor(entity: SaleStandEntity, id?: string) {
+  constructor(entity: SaleStandGoodEntity, id?: string) {
     Object.assign(this, entity);
     this.id = id || generateId()
   }

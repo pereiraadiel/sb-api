@@ -39,7 +39,7 @@ model SaleStand {
   id        String          @id
   fullname  String
   category  String
-  code      String
+  code      String          @unique
   createdAt DateTime        @default(now())
   goods     SaleStandGood[]
 }
@@ -59,7 +59,7 @@ model SaleStandGood {
 
 model Ticket {
   id            String         @id
-  physicalCode  String
+  physicalCode  String         @unique
   createdAt     DateTime       @default(now())
   activeTickets ActiveTicket[]
 }

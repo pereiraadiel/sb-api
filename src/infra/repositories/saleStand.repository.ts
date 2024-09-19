@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
+import { generateId } from '@/domain/utils/generators.util';
 import { SaleStandRepository } from '@/domain/repositories/saleStand.respository';
 import { CreateSaleStandDto } from '@/domain/dtos/saleStand.dto';
 import { SaleStandEntity } from '@/domain/entities/saleStand.entity';
@@ -16,9 +17,11 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 					code: saleStand.code,
 					fullname: saleStand.fullname,
 					category: saleStand.category,
-					goods: undefined
+					id: generateId(),
 				}
 			})
+
+			return new SaleStandEntity(createdSaleStand);
     } catch (error) {
       throw error;
     }
@@ -26,6 +29,13 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 
   async findById(id: string): Promise<SaleStandEntity> {
     try {
+			const saleStandEntity = await this.prisma.saleStand.findUnique({
+				where: {
+					id,
+				},
+			});
+
+			return new SaleStandEntity(saleStandEntity);
     } catch (error) {
       throw error;
     }
@@ -33,6 +43,13 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 
   async findByCode(code: string): Promise<SaleStandEntity> {
     try {
+			const saleStandEntity = await this.prisma.saleStand.findUnique({
+				where: {
+					code
+				},
+			});
+
+			return new SaleStandEntity(saleStandEntity);
     } catch (error) {
       throw error;
     }

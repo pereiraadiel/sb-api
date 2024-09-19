@@ -5,6 +5,8 @@ export type CreateSaleStandGoodDto = Omit<
   'id' | 'createdAt' | 'good' | 'saleStand'
 >;
 
+export type UpdateSaleStandGoodDto = Partial<Omit<CreateSaleStandGoodDto, 'saleStandId' | 'goodId'>> & {id: string}
+
 export type AssociateGoodToSaleStandDto = {
   goodId: string;
   saleStandId: string;
