@@ -1,0 +1,86 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ActiveTicket {
+  id          String         @id
+  ticketId    String
+  phoneNumber String
+  emoji       String
+  activeUntil DateTime
+  createdAt   DateTime       @default(now())
+  ticket      Ticket         @relation(fields: [ticketId], references: [id])
+  credits     TicketCredit[]
+  debits      TicketDebit[]
+}
+
+model Good {
+  id          String          @id
+  fullname    String
+  category    String
+  description String
+  priceCents  Int
+  createdAt   DateTime        @default(now())
+  stands      SaleStandGood[]
+}
+
+model SaleStand {
+  id        String          @id
+  fullname  String
+  category  String
+  code      String
+  createdAt DateTime        @default(now())
+  goods     SaleStandGood[]
+}
+
+model SaleStandGood {
+  id          String   @id
+  saleStandId String
+  goodId      String
+  stock       Int
+  priceCents  Int
+  createdAt   DateTime @default(now())
+
+  saleStand SaleStand     @relation(fields: [saleStandId], references: [id])
+  good      Good          @relation(fields: [goodId], references: [id])
+  sales     TicketDebit[]
+}
+
+model Ticket {
+  id            String         @id
+  physicalCode  String
+  createdAt     DateTime       @default(now())
+  activeTickets ActiveTicket[]
+}
+
+model TicketCredit {
+  id             String   @id
+  activeTicketId String
+  centsAmount    Int
+  expiresIn      DateTime
+  createdAt      DateTime @default(now())
+
+  activeTicket ActiveTicket @relation(fields: [activeTicketId], references: [id])
+}
+
+model TicketDebit {
+  id              String   @id
+  activeTicketId  String
+  saleStandGoodId String
+  centsAmount     Int
+  createdAt       DateTime @default(now())
+
+  activeTicket ActiveTicket  @relation(fields: [activeTicketId], references: [id])
+  good         SaleStandGood @relation(fields: [saleStandGoodId], references: [id])
+}

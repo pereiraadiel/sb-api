@@ -1,3 +1,4 @@
+import { generateId } from '@/domain/utils/generators.util';
 import { SaleStandGoodEntity } from './saleStandGood.entity';
 
 export class SaleStandEntity {
@@ -7,9 +8,10 @@ export class SaleStandEntity {
   code!: string;
   createdAt!: Date;
 
-  goods: SaleStandGoodEntity[] = [];
+  goods?: SaleStandGoodEntity[] = [];
 
-  constructor(entity: SaleStandEntity) {
+  constructor(entity: SaleStandEntity, id?: string) {
     Object.assign(this, entity);
+    this.id = id || generateId()
   }
 }

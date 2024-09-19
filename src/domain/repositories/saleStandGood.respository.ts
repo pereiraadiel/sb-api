@@ -6,6 +6,7 @@ export interface SaleStandGoodRepository {
   update(
     saleStandGood: CreateSaleStandGoodDto,
   ): Promise<SaleStandGoodEntity | null>;
+  updateStock(id: string, stock: number): Promise<SaleStandGoodEntity | null>;
   findById(id: string): Promise<SaleStandGoodEntity | null>;
   findByCode(code: string): Promise<SaleStandGoodEntity | null>;
   findBySaleStandAndGood(

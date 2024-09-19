@@ -1,3 +1,4 @@
+import { generateId } from '@/domain/utils/generators.util';
 import { ActiveTicketEntity } from './activeTicket.entity';
 
 export class TicketCreditEntity {
@@ -7,9 +8,10 @@ export class TicketCreditEntity {
   expiresIn!: Date;
   createdAt!: Date;
 
-  activeTicket!: ActiveTicketEntity;
+  activeTicket?: ActiveTicketEntity;
 
-  constructor(entity: TicketCreditEntity) {
+  constructor(entity: TicketCreditEntity, id?: string) {
     Object.assign(this, entity);
+    this.id = id || generateId()
   }
 }

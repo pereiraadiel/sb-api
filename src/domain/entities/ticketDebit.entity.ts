@@ -1,4 +1,6 @@
+import { generateId } from '@/domain/utils/generators.util';
 import { ActiveTicketEntity } from './activeTicket.entity';
+import { SaleStandGoodEntity } from './saleStandGood.entity';
 
 export class TicketDebitEntity {
   id!: string;
@@ -7,9 +9,11 @@ export class TicketDebitEntity {
   saleStandGoodId!: string;
   createdAt!: Date;
 
-  activeTicket: ActiveTicketEntity;
+  activeTicket?: ActiveTicketEntity;
+  good?: SaleStandGoodEntity;
 
-  constructor(entity: TicketDebitEntity) {
+  constructor(entity: TicketDebitEntity, id?: string) {
     Object.assign(this, entity);
+    this.id = id || generateId()
   }
 }

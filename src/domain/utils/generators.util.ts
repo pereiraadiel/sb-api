@@ -1,9 +1,7 @@
+import nanoid from 'nanoid';
+
 function genRandomString(length: number, characters: string) {
-  let str = '';
-  for (let i = 0; i < length; i++) {
-    str += characters[Math.floor(Math.random() * characters.length)];
-  }
-  return str;
+  return nanoid.customAlphabet(characters, length)();
 }
 
 /**
@@ -22,4 +20,9 @@ export function generatePhysicalCode() {
 export function generateCode() {
   const characters = '0123456789';
   return genRandomString(6, characters);
+}
+
+export function generateId() {
+  const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  return genRandomString(10, characters);
 }

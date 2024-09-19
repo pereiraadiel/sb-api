@@ -24,9 +24,13 @@ export class CreditTicket {
 
       const [activeTicket] = activeTickets;
 
+      // creditos expiram em 72 horas
+      const expiresIn = new Date(Date.now() + 1000 * 60 * 60 * 72);
+
       const newTicketCredit = await this.ticketCreditRepository.create({
         ...ticket,
         activeTicketId: activeTicket.id,
+        expiresIn,
       });
 
       return ticketCreditToResponseMapper(newTicketCredit);
