@@ -1,7 +1,8 @@
 import { ActiveTicketEntity } from '@/domain/entities/activeTicket.entity';
 
 export type ActiveTicketFiltersDto = {
-  ticketId: string;
+  ticketId?: string;
+  ticketPhysicalCode?: string;
   activeUntil?: {
     greaterThan: Date;
   };

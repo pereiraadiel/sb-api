@@ -2,11 +2,11 @@ import { TicketCreditEntity } from '@/domain/entities/ticketCredit.entity';
 
 export type CreateTicketCreditDto = Omit<
   TicketCreditEntity,
-  'id' | 'createdAt' | 'activeTicket' | 'expiresIn'
-> & {expiresIn?: Date}
+  'id' | 'createdAt' | 'activeTicket' | 'expiresIn' | 'activeTicketId'
+> & { expiresIn?: Date; physicalCode: string; activeTicketId?: string };
 
 export type TicketCreditFiltersDto = {
-  activeTicketId: string;
+  physicalCode: string;
   expiresIn: {
     greaterThan: Date;
   };

@@ -1,6 +1,12 @@
 import { CreateTicketCreditDto } from '@/domain/dtos/ticketCredit.dto';
-import { TICKET_CREDIT_REPOSITORY, TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import {
+  TICKET_CREDIT_REPOSITORY,
+  TicketCreditRepository,
+} from '@/domain/repositories/ticketCredit.respository';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
 import { ticketCreditToResponseMapper } from '@/domain/mappers/ticketCreditToResponse.mapper';
 import { Inject, Injectable } from '@nestjs/common';
 
@@ -16,7 +22,7 @@ export class CreditTicketUsecase {
   async execute(ticket: CreateTicketCreditDto) {
     try {
       const activeTickets = await this.activeTicketRepository.findMany({
-        ticketId: ticket.activeTicketId,
+        ticketPhysicalCode: ticket.physicalCode,
         activeUntil: {
           greaterThan: new Date(),
         },
@@ -27,6 +33,8 @@ export class CreditTicketUsecase {
       }
 
       const [activeTicket] = activeTickets;
+
+      console.warn('activeTicket: ', activeTicket, activeTickets);
 
       // creditos expiram em 72 horas
       const expiresIn = new Date(Date.now() + 1000 * 60 * 60 * 72);

@@ -1,4 +1,7 @@
-import { SALE_STAND_REPOSITORY, SaleStandRepository } from '@/domain/repositories/saleStand.respository';
+import {
+  SALE_STAND_REPOSITORY,
+  SaleStandRepository,
+} from '@/domain/repositories/saleStand.respository';
 import { EncodeUtil } from '@/domain/utils/encode.util';
 import { TOKEN_SERVICE, TokenService } from '@/domain/services/token.service';
 import { saleStandToResponseMapper } from '@/domain/mappers/saleStandToResponse.mapper';

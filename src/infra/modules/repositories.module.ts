@@ -13,7 +13,9 @@ import { ConcreteTicketRepository } from '@/infra/repositories/ticket.repository
 import { TICKET_DEBIT_REPOSITORY } from '@/domain/repositories/ticketDebit.respository';
 import { ConcreteTicketDebitRepository } from '@/infra/repositories/ticketDebit.repository';
 import { TICKET_CREDIT_REPOSITORY } from '@/domain/repositories/ticketCredit.respository';
+import { TRANSACTIONAL_REPOSITORY } from '@/domain/repositories/transactional.repository';
 import { ConcreteTicketCreditRepository } from '@/infra/repositories/ticketCredit.repository';
+import { ConcreteTransactionalRepository } from '@/infra/repositories/transactional.repository';
 
 import { DatabaseModule } from './database.module';
 
@@ -46,11 +48,15 @@ const repositories = [
     provide: TICKET_CREDIT_REPOSITORY,
     useClass: ConcreteTicketCreditRepository,
   },
+  {
+    provide: TRANSACTIONAL_REPOSITORY,
+    useClass: ConcreteTransactionalRepository,
+  },
 ];
 
 @Module({
-	imports: [DatabaseModule],
-	providers: repositories,
+  imports: [DatabaseModule],
+  providers: repositories,
   exports: repositories,
 })
 export class RepositoriesModule {}

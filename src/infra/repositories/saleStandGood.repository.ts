@@ -42,7 +42,7 @@ export class ConcreteSaleStandGoodRepository
         },
       });
 
-			if(!createdSaleStandGood) return null;
+      if (!createdSaleStandGood) return null;
 
       return new SaleStandGoodEntity(
         createdSaleStandGood,
@@ -72,7 +72,7 @@ export class ConcreteSaleStandGoodRepository
         },
       });
 
-			if(!updatedSaleStandGood) return null;
+      if (!updatedSaleStandGood) return null;
 
       return new SaleStandGoodEntity(
         updatedSaleStandGood,
@@ -99,11 +99,35 @@ export class ConcreteSaleStandGoodRepository
         },
       });
 
-			if(!updatedSaleStandGood) return null;
+      if (!updatedSaleStandGood) return null;
 
       return new SaleStandGoodEntity(
         updatedSaleStandGood,
         updatedSaleStandGood.id,
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findManyByIds(ids: string[]): Promise<SaleStandGoodEntity[]> {
+    try {
+      const saleStandGoods = await this.prisma.saleStandGood.findMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+        include: {
+          saleStand: true,
+          good: true,
+          sales: true,
+        },
+      });
+
+      return saleStandGoods.map(
+        (saleStandGood) =>
+          new SaleStandGoodEntity(saleStandGood, saleStandGood.id),
       );
     } catch (error) {
       throw error;

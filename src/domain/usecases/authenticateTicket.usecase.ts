@@ -1,6 +1,11 @@
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
-import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
+import {
+  TICKET_REPOSITORY,
+  TicketRepository,
+} from '@/domain/repositories/ticket.respository';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -35,7 +40,7 @@ export class AuthenticateTicketUsecase {
         throw new Error('Invalid emoji');
       }
 
-      return activeTicketToResponseMapper(activeTicket);
+      return !!activeTicket;
     } catch (error) {
       throw new Error(error.message);
     }

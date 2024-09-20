@@ -1,6 +1,15 @@
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { TICKET_CREDIT_REPOSITORY, TicketCreditRepository } from '@/domain/repositories/ticketCredit.respository';
-import { TICKET_DEBIT_REPOSITORY, TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
+import {
+  TICKET_CREDIT_REPOSITORY,
+  TicketCreditRepository,
+} from '@/domain/repositories/ticketCredit.respository';
+import {
+  TICKET_DEBIT_REPOSITORY,
+  TicketDebitRepository,
+} from '@/domain/repositories/ticketDebit.respository';
 import { Inject, Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -14,10 +23,10 @@ export class GetActiveTicketBalanceUsecase {
     private readonly ticketDebitRepository: TicketDebitRepository,
   ) {}
 
-  async execute(activeTicketId: string): Promise<number> {
+  async execute(code: string): Promise<number> {
     try {
       const activeTickets = await this.activeTicketRepository.findMany({
-        ticketId: activeTicketId,
+        ticketPhysicalCode: code,
         activeUntil: {
           greaterThan: new Date(),
         },
@@ -30,8 +39,8 @@ export class GetActiveTicketBalanceUsecase {
       const [ticket] = activeTickets;
 
       const ticketCredits = await this.ticketCreditRepository.findMany({
-        activeTicketId: ticket.id,
         expiresIn: { greaterThan: new Date() },
+        physicalCode: ticket.ticket.physicalCode,
       });
 
       // menor data de criação de um credito ativo

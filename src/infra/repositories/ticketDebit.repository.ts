@@ -6,12 +6,27 @@ import {
 } from '@/domain/dtos/ticketDebit.dto';
 import { TicketDebitEntity } from '@/domain/entities/ticketDebit.entity';
 import { TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
+import { generateId } from '@/domain/utils/generators.util';
 import { PrismaProvider } from '@/infra/database/prisma.provider';
-import { generateId } from '../../domain/utils/generators.util';
 
 @Injectable()
 export class ConcreteTicketDebitRepository implements TicketDebitRepository {
   constructor(private readonly prisma: PrismaProvider) {}
+
+  async createMany(debitations: CreateTicketDebitDto[]): Promise<void> {
+    try {
+      await this.prisma.ticketDebit.createMany({
+        data: debitations.map((ticketDebit) => ({
+          centsAmount: ticketDebit.centsAmount,
+          saleStandGoodId: ticketDebit.saleStandGoodId,
+          id: generateId(),
+          activeTicketId: ticketDebit.activeTicketId,
+        })),
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
 
   async create(ticketDebit: CreateTicketDebitDto): Promise<TicketDebitEntity> {
     try {
@@ -54,7 +69,7 @@ export class ConcreteTicketDebitRepository implements TicketDebitRepository {
         },
       });
 
-      if(!ticketDebitEntity) return null;
+      if (!ticketDebitEntity) return null;
 
       return new TicketDebitEntity(ticketDebitEntity, ticketDebitEntity.id);
     } catch (error) {
@@ -72,7 +87,7 @@ export class ConcreteTicketDebitRepository implements TicketDebitRepository {
             },
             createdAt: {
               gte: filters.createdAt.greaterThan,
-            }
+            },
           },
         },
         include: {

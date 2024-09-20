@@ -1,10 +1,23 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { CreateTicketDebitDto } from '@/domain/dtos/ticketDebit.dto';
-import { TICKET_DEBIT_REPOSITORY, TicketDebitRepository } from '@/domain/repositories/ticketDebit.respository';
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { SALE_STAND_GOOD_REPOSITORY, SaleStandGoodRepository } from '@/domain/repositories/saleStandGood.respository';
+import {
+  TICKET_DEBIT_REPOSITORY,
+  TicketDebitRepository,
+} from '@/domain/repositories/ticketDebit.respository';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
+import {
+  SALE_STAND_GOOD_REPOSITORY,
+  SaleStandGoodRepository,
+} from '@/domain/repositories/saleStandGood.respository';
 import { ticketDebitToResponseMapper } from '@/domain/mappers/ticketDebitToResponse.mapper';
+import {
+  TRANSACTIONAL_REPOSITORY,
+  TransactionalRepository,
+} from '@/domain/repositories/transactional.repository';
 
 @Injectable()
 export class DebitTicketUsecase {
@@ -15,44 +28,92 @@ export class DebitTicketUsecase {
     private readonly ticketDebitRepository: TicketDebitRepository,
     @Inject(SALE_STAND_GOOD_REPOSITORY)
     private readonly saleStandGoodRepository: SaleStandGoodRepository,
+    @Inject(TRANSACTIONAL_REPOSITORY)
+    private readonly transactionRepository: TransactionalRepository,
   ) {}
-
-  async execute(ticket: CreateTicketDebitDto) {
+  async execute(debitations: CreateTicketDebitDto[]) {
     try {
-      const [activeTickets, saleStandGood] = await Promise.all([
+      const [ticket] = debitations;
+      const goodIds = debitations.map((ticket) => ticket.saleStandGoodId);
+
+      const [activeTickets, saleStandGoods] = await Promise.all([
         this.activeTicketRepository.findMany({
           ticketId: ticket.activeTicketId,
           activeUntil: {
             greaterThan: new Date(),
           },
         }),
-        this.saleStandGoodRepository.findById(ticket.saleStandGoodId),
+        this.saleStandGoodRepository.findManyByIds(goodIds),
       ]);
+
+      if (saleStandGoods.length < debitations.length) {
+        throw new Error('At least one good was not found');
+      }
 
       if (!activeTickets.length) {
         throw new Error('Ticket not found');
       }
 
-      if (!saleStandGood) {
-        throw new Error('Sale Stand Good not found');
-      }
-
-      if (!saleStandGood.stock) {
-        throw new Error('Sale Stand Good out of stock');
-      }
-
       const [activeTicket] = activeTickets;
 
-      const [newTicketDebit] = await Promise.all([
-        this.ticketDebitRepository.create({
-          ...ticket,
-          activeTicketId: activeTicket.id,
-        }),
-        this.saleStandGoodRepository.updateStock(
-          saleStandGood.id,
-          saleStandGood.stock - 1,
-        ),
-      ]);
+      const activeTicketCredits = activeTicket.credits.filter(
+        (credit) => credit.expiresIn > new Date(),
+      );
+
+      const activeTicketCentsAmount = activeTicketCredits.reduce(
+        (acc, credit) => acc + credit.centsAmount,
+        0,
+      );
+
+      const debitTotalCentsAmount = debitations.reduce(
+        (acc, ticket) => acc + ticket.centsAmount * ticket.quantity,
+        0,
+      );
+
+      if (activeTicketCentsAmount < debitTotalCentsAmount) {
+        throw new Error('Insufficient balance');
+      }
+
+      for (const ticket of debitations) {
+        const saleStandGood = saleStandGoods.find(
+          (good) => good.id === ticket.saleStandGoodId,
+        );
+
+        if (saleStandGood.stock < ticket.quantity) {
+          throw new Error(`${saleStandGood.good.fullname} Out of stock`);
+        }
+      }
+
+      // criar uma transação para cada débito/quantidade ou seja se um produto for debitado 3 vezes, 3 transações serão criadas
+      const debitationsDuplications: CreateTicketDebitDto[] = [];
+      debitations.forEach((ticket) => {
+        for (let i = 1; i <= ticket.quantity; i++) {
+          debitationsDuplications.push({
+            ...ticket,
+            quantity: 1,
+          });
+        }
+      });
+
+      const [newTicketDebit] =
+        await this.transactionRepository.beginTransaction([
+          this.ticketDebitRepository.createMany(
+            debitationsDuplications.map((ticket) => ({
+              centsAmount: ticket.centsAmount,
+              saleStandGoodId: ticket.saleStandGoodId,
+              activeTicketId: activeTicket.id,
+            })),
+          ),
+          ...debitations.map((debitation) => {
+            const saleStandGood = saleStandGoods.find(
+              (item) => item.id === debitation.saleStandGoodId,
+            );
+            return this.saleStandGoodRepository.updateStock(
+              saleStandGood.id,
+              saleStandGood.stock - debitation.quantity,
+            );
+          }),
+        ]);
 
       return ticketDebitToResponseMapper(newTicketDebit);
     } catch (error) {

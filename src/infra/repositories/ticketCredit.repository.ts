@@ -29,13 +29,22 @@ export class ConcreteTicketCreditRepository implements TicketCreditRepository {
           },
         },
         include: {
-          activeTicket: true,
+          activeTicket: {
+            include: {
+              ticket: true,
+            },
+          },
         },
       });
 
+      console.warn('repository createdTicketCredit: ', createdTicketCredit);
+
       if (!createdTicketCredit) return null;
 
-      return new TicketCreditEntity(createdTicketCredit, createdTicketCredit.id);
+      return new TicketCreditEntity(
+        createdTicketCredit,
+        createdTicketCredit.id,
+      );
     } catch (error) {
       throw error;
     }
@@ -52,7 +61,7 @@ export class ConcreteTicketCreditRepository implements TicketCreditRepository {
         },
       });
 
-      if(!ticketCreditEntity) return null;
+      if (!ticketCreditEntity) return null;
 
       return new TicketCreditEntity(ticketCreditEntity, ticketCreditEntity.id);
     } catch (error) {
@@ -66,15 +75,17 @@ export class ConcreteTicketCreditRepository implements TicketCreditRepository {
     try {
       const ticketCredits = await this.prisma.ticketCredit.findMany({
         where: {
-					AND: {
-						activeTicket: {
-							id: filters.activeTicketId
-						},
-						expiresIn: {
-							gte: filters.expiresIn.greaterThan
-						}
-					}
-				},
+          AND: {
+            activeTicket: {
+              ticket: {
+                physicalCode: filters.physicalCode,
+              },
+            },
+            expiresIn: {
+              gte: filters.expiresIn.greaterThan,
+            },
+          },
+        },
         include: {
           activeTicket: true,
         },

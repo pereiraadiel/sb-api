@@ -1,5 +1,11 @@
-import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
+import {
+  TICKET_REPOSITORY,
+  TicketRepository,
+} from '@/domain/repositories/ticket.respository';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
 import { EMOJIS } from '@/domain/utils/emoji.util';
 import { Inject, Injectable } from '@nestjs/common';
 

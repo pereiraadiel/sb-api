@@ -33,9 +33,9 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
         },
       });
 
-      if(!activeTicket) return null
+      if (!activeTicket) return null;
 
-      return new ActiveTicketEntity(activeTicket,activeTicket.id);
+      return new ActiveTicketEntity(activeTicket, activeTicket.id);
     } catch (error) {
       throw error;
     }
@@ -45,25 +45,29 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
     filters: ActiveTicketFiltersDto,
   ): Promise<ActiveTicketEntity[]> {
     try {
-			const activeTickets = await this.prisma.activeTicket.findMany({
-				where: {
-					ticketId: filters.ticketId,
-					activeUntil: {
-						gte: filters.activeUntil.greaterThan,
-					},
-				},
-				include: {
-					ticket: true,
-					credits: true,
-					debits: true,
-				},
-			});
+      const activeTickets = await this.prisma.activeTicket.findMany({
+        where: {
+          ticket: {
+            physicalCode: filters.ticketPhysicalCode,
+          },
+          activeUntil: {
+            gte: filters.activeUntil.greaterThan,
+          },
+        },
+        include: {
+          ticket: true,
+          credits: true,
+          debits: true,
+        },
+      });
 
-      if(!activeTickets) return null;
+      if (!activeTickets) return null;
 
-			return activeTickets.map((activeTicket) => new ActiveTicketEntity(activeTicket, activeTicket.id));
-		} catch (error) {
-			throw error;
-		}
+      return activeTickets.map(
+        (activeTicket) => new ActiveTicketEntity(activeTicket, activeTicket.id),
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 }
