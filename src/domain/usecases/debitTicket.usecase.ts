@@ -13,11 +13,14 @@ import {
   SALE_STAND_GOOD_REPOSITORY,
   SaleStandGoodRepository,
 } from '@/domain/repositories/saleStandGood.respository';
-import { ticketDebitToResponseMapper } from '@/domain/mappers/ticketDebitToResponse.mapper';
 import {
   TRANSACTIONAL_REPOSITORY,
   TransactionalRepository,
 } from '@/domain/repositories/transactional.repository';
+import {
+  TICKET_CREDIT_REPOSITORY,
+  TicketCreditRepository,
+} from '@/domain/repositories/ticketCredit.respository';
 
 @Injectable()
 export class DebitTicketUsecase {
@@ -26,6 +29,8 @@ export class DebitTicketUsecase {
     private readonly activeTicketRepository: ActiveTicketRepository,
     @Inject(TICKET_DEBIT_REPOSITORY)
     private readonly ticketDebitRepository: TicketDebitRepository,
+    @Inject(TICKET_CREDIT_REPOSITORY)
+    private readonly ticketCreditRepository: TicketCreditRepository,
     @Inject(SALE_STAND_GOOD_REPOSITORY)
     private readonly saleStandGoodRepository: SaleStandGoodRepository,
     @Inject(TRANSACTIONAL_REPOSITORY)
@@ -60,17 +65,44 @@ export class DebitTicketUsecase {
         (credit) => credit.expiresIn > new Date(),
       );
 
+      if (activeTicketCredits.length === 0) {
+      }
+
+      // menor data de criação de um credito ativo
+      const earliestCreditDate = activeTicketCredits.reduce(
+        (acc, ticketCredit) =>
+          ticketCredit.createdAt < acc ? ticketCredit.createdAt : acc,
+        activeTicketCredits[0].createdAt,
+      );
+
+      const activeTicketDebits = activeTicket.debits.filter(
+        (debit) => debit.createdAt > earliestCreditDate,
+      );
+
       const activeTicketCentsAmount = activeTicketCredits.reduce(
         (acc, credit) => acc + credit.centsAmount,
         0,
       );
 
-      const debitTotalCentsAmount = debitations.reduce(
-        (acc, ticket) => acc + ticket.centsAmount * ticket.quantity,
+      const currentDebitsTotalCentsAmount = activeTicketDebits.reduce(
+        (acc, ticket) => acc + ticket.centsAmount,
         0,
       );
 
-      if (activeTicketCentsAmount < debitTotalCentsAmount) {
+      const debitTotalCentsAmount = debitations.reduce((acc, ticket) => {
+        const saleStandGood = saleStandGoods.find(
+          (item) => item.id === ticket.saleStandGoodId,
+        );
+        return acc + saleStandGood.priceCents * ticket.quantity;
+      }, 0);
+
+      console.log('ticketCredits:', activeTicketCredits);
+      console.log('ticketDebits:', activeTicketDebits);
+
+      if (
+        activeTicketCentsAmount <
+        debitTotalCentsAmount + currentDebitsTotalCentsAmount
+      ) {
         throw new Error('Insufficient balance');
       }
 
@@ -95,27 +127,35 @@ export class DebitTicketUsecase {
         }
       });
 
-      const [newTicketDebit] =
-        await this.transactionRepository.beginTransaction([
-          this.ticketDebitRepository.createMany(
-            debitationsDuplications.map((ticket) => ({
-              centsAmount: ticket.centsAmount,
+      const [] = await Promise.all([
+        // await this.transactionRepository.beginTransaction([
+        this.ticketDebitRepository.createMany(
+          debitationsDuplications.map((ticket) => {
+            const saleStandGood = saleStandGoods.find(
+              (item) => item.id === ticket.saleStandGoodId,
+            );
+            return {
+              centsAmount: saleStandGood.priceCents,
               saleStandGoodId: ticket.saleStandGoodId,
               activeTicketId: activeTicket.id,
-            })),
-          ),
-          ...debitations.map((debitation) => {
-            const saleStandGood = saleStandGoods.find(
-              (item) => item.id === debitation.saleStandGoodId,
-            );
-            return this.saleStandGoodRepository.updateStock(
-              saleStandGood.id,
-              saleStandGood.stock - debitation.quantity,
-            );
+            };
           }),
-        ]);
+        ),
+        ...debitations.map((debitation) => {
+          const saleStandGood = saleStandGoods.find(
+            (item) => item.id === debitation.saleStandGoodId,
+          );
+          return this.saleStandGoodRepository.updateStock(
+            saleStandGood.id,
+            saleStandGood.stock - debitation.quantity,
+          );
+        }),
+      ]);
+      // ]);
 
-      return ticketDebitToResponseMapper(newTicketDebit);
+      return {
+        debitation: debitTotalCentsAmount,
+      };
     } catch (error) {
       console.error('DebitTicket: ', error);
       throw new Error(error.message);

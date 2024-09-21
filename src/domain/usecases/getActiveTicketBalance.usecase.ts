@@ -43,6 +43,10 @@ export class GetActiveTicketBalanceUsecase {
         physicalCode: ticket.ticket.physicalCode,
       });
 
+      if (ticketCredits.length === 0) {
+        return 0;
+      }
+
       // menor data de criação de um credito ativo
       const earliestCreditDate = ticketCredits.reduce(
         (acc, ticketCredit) =>
