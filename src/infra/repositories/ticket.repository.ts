@@ -19,7 +19,7 @@ export class ConcreteTicketRepository implements TicketRepository {
         },
       });
 
-      if(!ticketEntity) return null;
+      if (!ticketEntity) return null;
 
       return new TicketEntity(ticketEntity, ticketEntity.id);
     } catch (error) {
@@ -35,7 +35,7 @@ export class ConcreteTicketRepository implements TicketRepository {
         },
       });
 
-      if(!ticketEntity) return null;
+      if (!ticketEntity) return null;
 
       return new TicketEntity(ticketEntity, ticketEntity.id);
     } catch (error) {
@@ -45,15 +45,25 @@ export class ConcreteTicketRepository implements TicketRepository {
 
   async findById(id: string): Promise<TicketEntity> {
     try {
-			const ticketEntity = await this.prisma.ticket.findUnique({
-				where: {
-					id,
-				},
-			});
+      const ticketEntity = await this.prisma.ticket.findUnique({
+        where: {
+          id,
+        },
+      });
 
-      if(!ticketEntity) return null;
+      if (!ticketEntity) return null;
 
-			return new TicketEntity(ticketEntity, ticketEntity.id);
+      return new TicketEntity(ticketEntity, ticketEntity.id);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async findMany() {
+    try {
+      const tickets = await this.prisma.ticket.findMany();
+
+      return tickets.map((ticket) => new TicketEntity(ticket, ticket.id));
     } catch (error) {
       throw error;
     }

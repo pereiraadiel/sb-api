@@ -1,11 +1,23 @@
 import { GetActiveTicketBalanceUsecase } from '@/domain/usecases/getActiveTicketBalance.usecase';
-import { Controller, Get, Param, Post, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  StreamableFile,
+} from '@nestjs/common';
 
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { ActivateTicketUsecase } from '@/domain/usecases/activateTicket.usecase';
 import { CreateTicketsUsecase } from '@/domain/usecases/createTickets.usecase';
 import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
+import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
+import { Request, Response } from 'express';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Controller('tickets')
 export class TicketsController {
@@ -16,6 +28,7 @@ export class TicketsController {
     private readonly creditTicketUsecase: CreditTicketUsecase,
     private readonly debitTicketUsecase: DebitTicketUsecase,
     private readonly getActiveTicketBalanceUsecase: GetActiveTicketBalanceUsecase,
+    private readonly generatePhysicalTickets: GeneratePhysicalTicketsUsecase,
   ) {}
 
   @Post()
@@ -23,6 +36,24 @@ export class TicketsController {
     const { body } = req;
     const { quantity } = body as any;
     return await this.createTicketsUsecase.execute(quantity);
+  }
+
+  @Get('physical')
+  async getPhysicalTickets(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    await this.generatePhysicalTickets.execute();
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `attachment; filename="bilhetes.pdf"`,
+    });
+
+    const pdf = fs.createReadStream(
+      path.resolve(__dirname, '..', '..', 'assets', 'tickets.pdf'),
+    );
+
+    return new StreamableFile(pdf);
   }
 
   @Post(':code/activate')

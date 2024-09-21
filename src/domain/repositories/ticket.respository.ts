@@ -7,4 +7,5 @@ export interface TicketRepository {
   create(ticket: CreateTicketDto): Promise<TicketEntity>;
   findByCode(code: string): Promise<TicketEntity | null>;
   findById(id: string): Promise<TicketEntity | null>;
+  findMany(): Promise<TicketEntity[]>;
 }

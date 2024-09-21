@@ -15,6 +15,7 @@ import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
 import { GetActiveTicketBalanceUsecase } from '@/domain/usecases/getActiveTicketBalance.usecase';
 import { GetTicketEmojisToAuthenticateUsecase } from '@/domain/usecases/getTicketEmojisToAuthenticate.usecase';
+import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
 
 const useCases = [
   ActivateTicketUsecase,
@@ -29,6 +30,7 @@ const useCases = [
   GetActiveTicketBalanceUsecase,
   GetTicketByCodeUsecase,
   GetTicketEmojisToAuthenticateUsecase,
+  GeneratePhysicalTicketsUsecase,
 ];
 
 @Module({
