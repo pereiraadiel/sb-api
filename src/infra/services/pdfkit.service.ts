@@ -2,6 +2,8 @@ import { Readable } from 'stream';
 import * as PDFKit from 'pdfkit';
 import * as fs from 'fs';
 import * as path from 'path';
+// import StreamToArray from 'stream-to-array';
+const StreamToArray = require('stream-to-array');
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PdfService } from '@/domain/services/pdf.service';
@@ -58,102 +60,61 @@ export class PdfkitService implements PdfService {
         ticketIndex < pages[pageIndex].length;
         ticketIndex++
       ) {
-        const qrPath = path.resolve(__dirname, '..', '..', 'assets', `qr.png`);
-        await this.qrcodeService.generateCode(
-          tickets[ticketIndex].physicalCode,
-        );
-        this.document
-          .image(qrPath, 57 + 250 * ticketIndex, 12, {
-            fit: [60, 60],
-            align: 'center',
-            valign: 'center',
-          })
-          .rect(50 + 250 * ticketIndex, 15, 240, 80)
-          .stroke();
+        await this.qrcodeService
+          .generateCode(tickets[ticketIndex].physicalCode)
+          .then(async (qr) => {
+            const qrArrayBuffer = await StreamToArray(qr.stream);
+            const qrBuffer = Buffer.concat(qrArrayBuffer);
 
-        this.document
-          .image(logoPath, 50 + 250 * ticketIndex, 61, {
-            fit: [70, 38],
-            align: 'center',
-            valign: 'center',
-          })
-          .stroke();
+            const colIndex = ticketIndex % 2;
+            const rowIndex = Math.floor(ticketIndex / 2);
 
-        this.document
-          .fontSize(12)
-          .text(
-            `Bilhete: ${tickets[ticketIndex].physicalCode}`,
-            130 + 250 * ticketIndex,
-            25,
-          )
-          .fillColor('black');
+            this.document
+              .image(qrBuffer, 57 + 250 * colIndex, 12 + 90 * rowIndex, {
+                fit: [60, 60],
+                align: 'center',
+                valign: 'center',
+              })
+              .rect(50 + 250 * colIndex, 15 + 90 * rowIndex, 240, 80)
+              .stroke();
 
-        this.document
-          .fontSize(6)
-          .text(
-            `O saldo do bilhete é válido por 72 horas`,
-            130 + 250 * ticketIndex,
-            38,
-          )
-          .fillColor('black');
+            this.document
+              .image(logoPath, 50 + 250 * colIndex, 61 + 90 * rowIndex, {
+                fit: [70, 38],
+                align: 'center',
+                valign: 'center',
+              })
+              .stroke();
 
-        this.document
-          .fontSize(6)
-          .text(
-            `Atenção, lembre-se do emoji associado ao bilhete, \nvocê precisará informá-lo nas barraquinhas`,
-            130 + 250 * ticketIndex,
-            78,
-          )
-          .fillColor('black');
+            this.document
+              .fontSize(12)
+              .text(
+                `Bilhete: ${tickets[ticketIndex].physicalCode}`,
+                130 + 250 * colIndex,
+                25 + 90 * rowIndex,
+              )
+              .fillColor('black');
 
-        // ---- <> -----
+            this.document
+              .fontSize(6)
+              .text(
+                `O saldo do bilhete é válido por 72 horas`,
+                130 + 250 * colIndex,
+                38 + 90 * rowIndex,
+              )
+              .fillColor('black');
 
-        // this.document
-        //   .image(qrPath, 57, 12 + 90 * ticketIndex, {
-        //     fit: [60, 60],
-        //     align: 'center',
-        //     valign: 'center',
-        //   })
-        //   .rect(50, 15 + 90 * ticketIndex, 240, 80)
-        //   .stroke();
-
-        // this.document
-        //   .image(logoPath, 50, 61 + 90 * ticketIndex, {
-        //     fit: [70, 38],
-        //     align: 'center',
-        //     valign: 'center',
-        //   })
-        //   .stroke();
-
-        // this.document
-        //   .fontSize(12)
-        //   .text(
-        //     `Bilhete: ${tickets[ticketIndex].physicalCode}`,
-        //     130,
-        //     25 + 90 * ticketIndex,
-        //   )
-        //   .fillColor('black');
-
-        // this.document
-        //   .fontSize(6)
-        //   .text(
-        //     `O saldo do bilhete é válido por 72 horas`,
-        //     130,
-        //     38 + 90 * ticketIndex,
-        //   )
-        //   .fillColor('black');
-
-        // this.document
-        //   .fontSize(6)
-        //   .text(
-        //     `Atenção, lembre-se do emoji associado ao bilhete, \nvocê precisará informá-lo nas barraquinhas`,
-        //     130,
-        //     78 + 90 * ticketIndex,
-        //   )
-        //   .fillColor('black');
+            this.document
+              .fontSize(6)
+              .text(
+                `Atenção, lembre-se do emoji associado ao bilhete, \nvocê precisará informá-lo nas barraquinhas`,
+                130 + 250 * colIndex,
+                78 + 90 * rowIndex,
+              )
+              .fillColor('black');
+          });
       }
     }
-
     this.document.end();
     return this;
   }

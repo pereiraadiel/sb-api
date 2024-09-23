@@ -6,10 +6,16 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ConcreteQrcodeService implements QrcodeService {
-  private readonly path = path.resolve(__dirname, '..', '..', 'assets');
+  private readonly path = path.resolve(
+    __dirname,
+    '..',
+    '..',
+    'assets',
+    'qr.png',
+  );
 
   async generateCode(payload: string) {
-    await QRCode.toFile(path.join(this.path, `qr.png`), payload);
+    await QRCode.toFile(this.path, payload);
     return this;
   }
 
