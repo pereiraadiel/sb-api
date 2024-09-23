@@ -1,9 +1,6 @@
-import { Readable } from 'stream';
+import { Readable, PassThrough } from 'stream';
 import * as PDFKit from 'pdfkit';
-import * as fs from 'fs';
 import * as path from 'path';
-// import StreamToArray from 'stream-to-array';
-const StreamToArray = require('stream-to-array');
 import { Inject, Injectable } from '@nestjs/common';
 
 import { PdfService } from '@/domain/services/pdf.service';
@@ -13,6 +10,8 @@ import {
   QrcodeService,
 } from '@/domain/services/qrcode.service';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const StreamToArray = require('stream-to-array');
 @Injectable()
 export class PdfkitService implements PdfService {
   private _stream: Readable;
@@ -44,22 +43,28 @@ export class PdfkitService implements PdfService {
   }
 
   async generatePdf(tickets: TicketEntity[]): Promise<PdfService> {
-    this.document.pipe(
-      fs.createWriteStream(
-        path.resolve(__dirname, '..', '..', 'assets', 'tickets.pdf'),
-      ),
-    );
+    this._stream = this.document.pipe(new PassThrough());
 
     const logoPath = path.resolve(__dirname, '..', '..', 'assets', `sb.png`);
 
-    const { pages, numberOfPages } = this.getPages(tickets);
+    const pageSize = 18;
+    const { pages, numberOfPages } = this.getPages(tickets, pageSize);
+
+    console.log('pages', pages, numberOfPages);
 
     for (let pageIndex = 0; pageIndex < numberOfPages; pageIndex++) {
+      console.log('pageIndex', pageIndex);
+
+      // centralizar o texto na página
+      this.document
+        .fontSize(8)
+        .text(`Página ${pageIndex + 1}/${numberOfPages}`, 10, 5);
       for (
         let ticketIndex = 0;
         ticketIndex < pages[pageIndex].length;
         ticketIndex++
       ) {
+        console.log('ticketIndex', ticketIndex);
         await this.qrcodeService
           .generateCode(tickets[ticketIndex].physicalCode)
           .then(async (qr) => {
@@ -89,7 +94,7 @@ export class PdfkitService implements PdfService {
             this.document
               .fontSize(12)
               .text(
-                `Bilhete: ${tickets[ticketIndex].physicalCode}`,
+                `Bilhete: ${tickets[ticketIndex + ticketIndex * pageIndex].physicalCode}`,
                 130 + 250 * colIndex,
                 25 + 90 * rowIndex,
               )
@@ -114,14 +119,15 @@ export class PdfkitService implements PdfService {
               .fillColor('black');
           });
       }
+      if (pageIndex + 1 < numberOfPages) {
+        this.document.addPage();
+      }
     }
     this.document.end();
     return this;
   }
 
   get stream() {
-    return fs.createReadStream(
-      path.resolve(__dirname, '..', '..', 'assets', 'tickets.pdf'),
-    );
+    return this._stream;
   }
 }

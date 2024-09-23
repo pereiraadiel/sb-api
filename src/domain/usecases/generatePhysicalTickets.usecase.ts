@@ -24,7 +24,9 @@ export class GeneratePhysicalTicketsUsecase {
         throw new Error('Não existem bilhetes cadastrados ainda!');
       }
 
-      await this.pdfService.generatePdf(tickets);
+      const pdfStream = (await this.pdfService.generatePdf(tickets)).stream;
+
+      return pdfStream;
     } catch (error) {
       throw new Error(error.message);
     }

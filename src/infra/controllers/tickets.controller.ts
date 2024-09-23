@@ -43,15 +43,11 @@ export class TicketsController {
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
   ) {
-    await this.generatePhysicalTickets.execute();
+    const pdf = await this.generatePhysicalTickets.execute();
     res.set({
       'Content-Type': 'application/pdf',
       'Content-Disposition': `attachment; filename="bilhetes.pdf"`,
     });
-
-    const pdf = fs.createReadStream(
-      path.resolve(__dirname, '..', '..', 'assets', 'tickets.pdf'),
-    );
 
     return new StreamableFile(pdf);
   }
