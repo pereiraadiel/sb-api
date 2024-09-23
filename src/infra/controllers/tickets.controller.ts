@@ -1,13 +1,5 @@
 import { GetActiveTicketBalanceUsecase } from '@/domain/usecases/getActiveTicketBalance.usecase';
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Req,
-  Res,
-  StreamableFile,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { ActivateTicketUsecase } from '@/domain/usecases/activateTicket.usecase';
@@ -16,8 +8,6 @@ import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
 import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
 import { Request, Response } from 'express';
-import * as fs from 'fs';
-import * as path from 'path';
 
 @Controller('tickets')
 export class TicketsController {
@@ -39,17 +29,30 @@ export class TicketsController {
   }
 
   @Get('physical')
-  async getPhysicalTickets(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    const pdf = await this.generatePhysicalTickets.execute();
-    res.set({
-      'Content-Type': 'application/pdf',
-      'Content-Disposition': `attachment; filename="bilhetes.pdf"`,
+  async getPhysicalTickets(@Res() res: Response) {
+    const pdfStream = await this.generatePhysicalTickets.execute();
+    const buffers = [];
+    let pdfBuffer: Buffer = null;
+
+    pdfStream.on('readable', () => {
+      const chunk = pdfStream.read();
+      if (chunk) {
+        buffers.push(chunk);
+      }
+      pdfBuffer = Buffer.concat(buffers);
     });
 
-    return new StreamableFile(pdf);
+    pdfStream.on('data', (chunk) => buffers.push(chunk));
+    pdfStream.on('end', () => {
+      pdfBuffer = Buffer.concat(buffers);
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': 'attachment; filename="bilhetes.pdf"',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Content-Length': pdfBuffer.length,
+      });
+      res.end(pdfBuffer);
+    });
   }
 
   @Post(':code/activate')
