@@ -42,6 +42,8 @@ export class GetTicketEmojisToAuthenticateUsecase {
       const emojis = new Set<keyof typeof EMOJIS>();
       emojis.add(emoji);
 
+      console.log(emojis);
+
       for (let i = 0; i < 5; i++) {
         let randomEmoji = Object.keys(EMOJIS)[
           Math.floor(Math.random() * Object.keys(EMOJIS).length)

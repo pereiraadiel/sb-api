@@ -13,17 +13,17 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
   async create(saleStand: CreateSaleStandDto): Promise<SaleStandEntity> {
     try {
       const createdSaleStand = await this.prisma.saleStand.create({
-				data: {
-					code: saleStand.code,
-					fullname: saleStand.fullname,
-					category: saleStand.category,
-					id: generateId(),
-				}
-			});
+        data: {
+          code: saleStand.code,
+          fullname: saleStand.fullname,
+          category: saleStand.category,
+          id: generateId(),
+        },
+      });
 
-			if(!createdSaleStand) return null;
+      if (!createdSaleStand) return null;
 
-			return new SaleStandEntity(createdSaleStand, createdSaleStand.id);
+      return new SaleStandEntity(createdSaleStand, createdSaleStand.id);
     } catch (error) {
       throw error;
     }
@@ -31,15 +31,15 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 
   async findById(id: string): Promise<SaleStandEntity> {
     try {
-			const saleStandEntity = await this.prisma.saleStand.findUnique({
-				where: {
-					id,
-				},
-			});
+      const saleStandEntity = await this.prisma.saleStand.findUnique({
+        where: {
+          id,
+        },
+      });
 
-			if(!saleStandEntity) return null;
+      if (!saleStandEntity) return null;
 
-			return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
+      return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
     } catch (error) {
       throw error;
     }
@@ -47,15 +47,22 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
 
   async findByCode(code: string): Promise<SaleStandEntity> {
     try {
-			const saleStandEntity = await this.prisma.saleStand.findUnique({
-				where: {
-					code
-				},
-			});
+      const saleStandEntity = await this.prisma.saleStand.findUnique({
+        where: {
+          code,
+        },
+        include: {
+          goods: {
+            include: {
+              good: true,
+            },
+          },
+        },
+      });
 
-			if(!saleStandEntity) return null;
+      if (!saleStandEntity) return null;
 
-			return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
+      return new SaleStandEntity(saleStandEntity, saleStandEntity.id);
     } catch (error) {
       throw error;
     }

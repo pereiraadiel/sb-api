@@ -9,7 +9,7 @@ export class StandsController {
   constructor(
     private readonly createStandUsecase: CreateSaleStandUsecase,
     private readonly associateGoodToSaleStand: AssociateGoodToSaleStand,
-    private readonly authenticateSaleStand: AuthenticateSaleStand
+    private readonly authenticateSaleStand: AuthenticateSaleStand,
   ) {}
 
   @Post()
@@ -32,7 +32,7 @@ export class StandsController {
       saleStandId: id,
       goodId,
       priceCents,
-			stock
+      stock,
     });
   }
 

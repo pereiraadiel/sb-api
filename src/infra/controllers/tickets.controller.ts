@@ -1,3 +1,5 @@
+import { GetTicketEmojisToAuthenticateUsecase } from '@/domain/usecases/getTicketEmojisToAuthenticate.usecase';
+import { GetTicketByCodeUsecase } from '@/domain/usecases/getTicketByCode.usecase';
 import { GetActiveTicketBalanceUsecase } from '@/domain/usecases/getActiveTicketBalance.usecase';
 import { Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
 
@@ -18,6 +20,8 @@ export class TicketsController {
     private readonly creditTicketUsecase: CreditTicketUsecase,
     private readonly debitTicketUsecase: DebitTicketUsecase,
     private readonly getActiveTicketBalanceUsecase: GetActiveTicketBalanceUsecase,
+    private readonly getTicketByCodeUsecase: GetTicketByCodeUsecase,
+    private readonly getTicketEmojisToAuthenticateUsecase: GetTicketEmojisToAuthenticateUsecase,
     private readonly generatePhysicalTickets: GeneratePhysicalTicketsUsecase,
   ) {}
 
@@ -99,6 +103,30 @@ export class TicketsController {
         quantity: good.quantity,
       })),
     );
+  }
+
+  @Get(':code')
+  async getTicket(@Req() req: Request, @Param() param: any) {
+    const { code } = param;
+    const balance = await this.getActiveTicketBalanceUsecase.execute(code);
+    const ticket = await this.getTicketByCodeUsecase.execute(code);
+
+    return {
+      ...ticket,
+      balance,
+    };
+  }
+
+  @Get(':code/emojis')
+  async getTicketAuthEmojis(@Req() req: Request, @Param() param: any) {
+    const { code } = param;
+
+    const emojis =
+      await this.getTicketEmojisToAuthenticateUsecase.execute(code);
+    const emojisArray = Array.from(emojis);
+
+    // retornar emojis como array em ordem aleatoria
+    return emojisArray.sort(() => Math.random() - 0.5);
   }
 
   @Get(':code/balance')
