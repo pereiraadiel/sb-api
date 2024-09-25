@@ -10,6 +10,10 @@ import {
 } from '@/domain/repositories/ticket.respository';
 import { CACHE_SERVICE, CacheService } from '@/domain/services/cache.service';
 import { generateToken } from '@/domain/utils/generators.util';
+import { NotFoundError } from '@/domain/errors/notFound.error';
+import { BadRequestError } from '@/domain/errors/badRequest.error';
+import { UnauthorizedError } from '@/domain/errors/unauthorized.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class AuthenticateTicketUsecase {
@@ -26,7 +30,10 @@ export class AuthenticateTicketUsecase {
     try {
       const ticket = await this.ticketRepository.findByCode(code);
       if (!ticket) {
-        throw new Error('Ticket not found');
+        throw new NotFoundError(
+          'Bilhete não encontrado',
+          'AuthenticateTicketUsecase',
+        );
       }
 
       const activeTickets = await this.activeTicketRepository.findMany({
@@ -37,12 +44,18 @@ export class AuthenticateTicketUsecase {
       });
 
       if (activeTickets.length === 0) {
-        throw new Error('Ticket not found');
+        throw new BadRequestError(
+          'Bilhete não ativado',
+          'AuthenticateTicketUsecase',
+        );
       }
 
       const activeTicket = activeTickets[0];
       if (activeTicket.emoji !== emoji) {
-        throw new Error('Invalid emoji');
+        throw new UnauthorizedError(
+          'Emoji inválido',
+          'AuthenticateTicketUsecase',
+        );
       }
 
       // generate random token, store it in cache for 30 seconds and return it
@@ -52,7 +65,17 @@ export class AuthenticateTicketUsecase {
 
       return { token };
     } catch (error) {
-      throw new Error(error.message);
+      if (
+        error instanceof NotFoundError ||
+        error instanceof BadRequestError ||
+        error instanceof UnauthorizedError
+      ) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao autenticar bilhete',
+        'AuthenticateTicketUsecase',
+      ).addCompleteError(error);
     }
   }
 }

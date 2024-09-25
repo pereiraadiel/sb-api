@@ -8,6 +8,8 @@ import {
 } from '@/domain/repositories/activeTicket.repository';
 import { EMOJIS } from '@/domain/utils/emoji.util';
 import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundError } from '@/domain/errors/notFound.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class GetTicketEmojisToAuthenticateUsecase {
@@ -23,7 +25,10 @@ export class GetTicketEmojisToAuthenticateUsecase {
       const ticket = await this.ticketRepository.findByCode(code);
 
       if (!ticket) {
-        throw new Error('Ticket not found');
+        throw new NotFoundError(
+          'Ticket not found',
+          'GetTicketEmojisToAuthenticateUsecase',
+        );
       }
 
       const activeTickets = await this.activeTicketRepository.findMany({
@@ -34,7 +39,10 @@ export class GetTicketEmojisToAuthenticateUsecase {
       });
 
       if (activeTickets.length === 0) {
-        throw new Error('Ticket not found');
+        throw new NotFoundError(
+          'Ticket not found',
+          'GetTicketEmojisToAuthenticateUsecase',
+        );
       }
 
       const emoji = activeTickets[0].emoji as keyof typeof EMOJIS;
@@ -60,7 +68,13 @@ export class GetTicketEmojisToAuthenticateUsecase {
 
       return emojis;
     } catch (error) {
-      throw new Error(error.message);
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao buscar emojis para autenticar bilhete',
+        'GetTicketEmojisToAuthenticateUsecase',
+      ).addCompleteError(error);
     }
   }
 }

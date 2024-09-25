@@ -5,6 +5,7 @@ import {
 import { CreateGoodDto } from '@/domain/dtos/good.dto';
 import { goodToResponseMapper } from '@/domain/mappers/goodToResponse.mapper';
 import { Inject, Injectable } from '@nestjs/common';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class CreateGoodUsecase {
@@ -18,8 +19,10 @@ export class CreateGoodUsecase {
       const newGood = await this.goodRepository.create(good);
       return goodToResponseMapper(newGood);
     } catch (error) {
-      console.error('CreateGoodUsecase: ', error);
-      throw new Error(error.message);
+      throw new GenericError(
+        'Erro ao criar produto',
+        'CreateGoodUsecase',
+      ).addCompleteError(error);
     }
   }
 }

@@ -4,6 +4,8 @@ import {
   TICKET_REPOSITORY,
   TicketRepository,
 } from '@/domain/repositories/ticket.respository';
+import { BadRequestError } from '@/domain/errors/badRequest.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class GeneratePhysicalTicketsUsecase {
@@ -21,14 +23,20 @@ export class GeneratePhysicalTicketsUsecase {
       console.log('tickets.length', tickets.length);
 
       if (tickets.length === 0) {
-        throw new Error('Não existem bilhetes cadastrados ainda!');
+        throw new BadRequestError(
+          'Não existem bilhetes cadastrados ainda!',
+          'GeneratePhysicalTicketsUsecase',
+        );
       }
 
       const pdfStream = (await this.pdfService.generatePdf(tickets)).stream;
 
       return pdfStream;
     } catch (error) {
-      throw new Error(error.message);
+      throw new GenericError(
+        'Erro ao gerar bilhetes físicos',
+        'GeneratePhysicalTicketsUsecase',
+      ).addCompleteError(error);
     }
   }
 }

@@ -1,3 +1,5 @@
+import { Inject, Injectable } from '@nestjs/common';
+
 import { CreateTicketCreditDto } from '@/domain/dtos/ticketCredit.dto';
 import {
   TICKET_CREDIT_REPOSITORY,
@@ -8,7 +10,8 @@ import {
   ActiveTicketRepository,
 } from '@/domain/repositories/activeTicket.repository';
 import { ticketCreditToResponseMapper } from '@/domain/mappers/ticketCreditToResponse.mapper';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestError } from '@/domain/errors/badRequest.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class CreditTicketUsecase {
@@ -29,12 +32,10 @@ export class CreditTicketUsecase {
       });
 
       if (!activeTickets.length) {
-        throw new Error('Ticket not found');
+        throw new BadRequestError('Bilhete não ativado', 'CreditTicketUsecase');
       }
 
       const [activeTicket] = activeTickets;
-
-      console.warn('activeTicket: ', activeTicket, activeTickets);
 
       // creditos expiram em 72 horas
       const expiresIn = new Date(Date.now() + 1000 * 60 * 60 * 72);
@@ -47,8 +48,13 @@ export class CreditTicketUsecase {
 
       return ticketCreditToResponseMapper(newTicketCredit);
     } catch (error) {
-      console.error('CreditTicket: ', error);
-      throw new Error(error.message);
+      if (error instanceof BadRequestError) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao creditar bilhete',
+        'CreditTicketUsecase',
+      ).addCompleteError(error);
     }
   }
 }

@@ -70,6 +70,7 @@ export class TicketsController {
 
   @Post(':code/activate')
   async activateTicket(@Req() req: Request, @Param() param: any) {
+    console.log('activateTicket');
     const { code } = param;
     const { body } = req;
     const { phoneNumber } = body as any;

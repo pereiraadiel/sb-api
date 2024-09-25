@@ -6,6 +6,7 @@ import {
   TicketRepository,
 } from '@/domain/repositories/ticket.respository';
 import { TicketEntity } from '@/domain/entities/ticket.entity';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class VerifyTicketAuthenticationUsecase {
@@ -17,18 +18,25 @@ export class VerifyTicketAuthenticationUsecase {
   ) {}
 
   async execute(code: string): Promise<TicketEntity | false> {
-    const ticketId = await this.cacheService.get(code);
-    console.log('ticketId', ticketId);
-    if (!ticketId) {
-      return false;
-    }
+    try {
+      const ticketId = await this.cacheService.get(code);
+      console.log('ticketId', ticketId);
+      if (!ticketId) {
+        return false;
+      }
 
-    const ticket = await this.ticketRepository.findById(ticketId);
-    console.log('ticket', ticket);
-    if (!ticket) {
-      return false;
+      const ticket = await this.ticketRepository.findById(ticketId);
+      console.log('ticket', ticket);
+      if (!ticket) {
+        return false;
+      }
+      await this.cacheService.del(code);
+      return ticket;
+    } catch (error) {
+      throw new GenericError(
+        'Erro ao validar a autenticação do bilhete',
+        'VerifyTicketAuthenticationUsecase',
+      ).addCompleteError(error);
     }
-    await this.cacheService.del(code);
-    return ticket;
   }
 }

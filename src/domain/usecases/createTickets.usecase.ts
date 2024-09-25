@@ -6,6 +6,7 @@ import { TicketEntity } from '@/domain/entities/ticket.entity';
 import { generatePhysicalCode } from '@/domain/utils/generators.util';
 import { ticketToResponseMapper } from '@/domain/mappers/ticketToResponse.mapper';
 import { Inject, Injectable } from '@nestjs/common';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class CreateTicketsUsecase {
@@ -26,8 +27,10 @@ export class CreateTicketsUsecase {
 
       return tickets.map((ticket) => ticketToResponseMapper(ticket));
     } catch (error) {
-      console.error('CreateTicketUsecase: ', error);
-      throw new Error(error.message);
+      throw new GenericError(
+        'Erro ao criar bilhetes',
+        'CreateTicketsUsecase',
+      ).addCompleteError(error);
     }
   }
 }

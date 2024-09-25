@@ -1,8 +1,18 @@
-import { EMOJIS } from '@/domain/utils/emoji.util';
-import { TICKET_REPOSITORY, TicketRepository } from '@/domain/repositories/ticket.respository';
-import { ACTIVE_TICKET_REPOSITORY, ActiveTicketRepository } from '@/domain/repositories/activeTicket.repository';
-import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
 import { Inject, Injectable } from '@nestjs/common';
+
+import { EMOJIS } from '@/domain/utils/emoji.util';
+import {
+  TICKET_REPOSITORY,
+  TicketRepository,
+} from '@/domain/repositories/ticket.respository';
+import {
+  ACTIVE_TICKET_REPOSITORY,
+  ActiveTicketRepository,
+} from '@/domain/repositories/activeTicket.repository';
+import { activeTicketToResponseMapper } from '@/domain/mappers/activeTicketToResponse.mapper';
+import { NotFoundError } from '@/domain/errors/notFound.error';
+import { AlreadyExistsError } from '@/domain/errors/alreadyExists.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class ActivateTicketUsecase {
@@ -16,7 +26,11 @@ export class ActivateTicketUsecase {
   async execute(code: string, phoneNumber: string) {
     try {
       const ticket = await this.ticketRepository.findByCode(code);
-      if (!ticket) throw new Error('Ticket not found');
+      if (!ticket)
+        throw new NotFoundError(
+          'Bilhete não encontrado',
+          'ActivateTicketUsecase',
+        );
 
       const activeTickets = await this.activeTicketRepository.findMany({
         ticketId: ticket.id,
@@ -24,7 +38,11 @@ export class ActivateTicketUsecase {
           greaterThan: new Date(),
         },
       });
-      if (activeTickets.length) throw new Error('Ticket already activated');
+      if (activeTickets.length)
+        throw new AlreadyExistsError(
+          'Bilhete já ativado',
+          'ActivateTicketUsecase',
+        );
 
       const emoji =
         Object.keys(EMOJIS)[
@@ -40,9 +58,21 @@ export class ActivateTicketUsecase {
         activeUntil,
       });
 
-      return {...activeTicketToResponseMapper(activeTicket), emoji: activeTicket.emoji};
+      return {
+        ...activeTicketToResponseMapper(activeTicket),
+        emoji: activeTicket.emoji,
+      };
     } catch (error) {
-      throw new Error(error.message);
+      if (
+        error instanceof NotFoundError ||
+        error instanceof AlreadyExistsError
+      ) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao ativar bilhete',
+        'ActivateTicketUsecase',
+      ).addCompleteError(error);
     }
   }
 }

@@ -11,6 +11,8 @@ import {
   TicketDebitRepository,
 } from '@/domain/repositories/ticketDebit.respository';
 import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestError } from '@/domain/errors/badRequest.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class GetActiveTicketBalanceUsecase {
@@ -33,7 +35,10 @@ export class GetActiveTicketBalanceUsecase {
       });
 
       if (!activeTickets.length) {
-        throw new Error('Ticket not found');
+        throw new BadRequestError(
+          'Bilhete não ativado',
+          'GetActiveTicketBalanceUsecase',
+        );
       }
 
       const [ticket] = activeTickets;
@@ -73,8 +78,13 @@ export class GetActiveTicketBalanceUsecase {
 
       return ticketCreditTotal - ticketDebitTotal;
     } catch (error) {
-      console.error('GetActiveTicketBalanceUsecase: ', error);
-      throw new Error(error.message);
+      if (error instanceof BadRequestError) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao obter o saldo do bilhete',
+        'GetActiveTicketBalanceUsecase',
+      ).addCompleteError(error);
     }
   }
 }

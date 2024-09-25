@@ -4,6 +4,8 @@ import {
 } from '@/domain/repositories/ticket.respository';
 import { ticketToResponseMapper } from '@/domain/mappers/ticketToResponse.mapper';
 import { Inject, Injectable } from '@nestjs/common';
+import { NotFoundError } from '@/domain/errors/notFound.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class GetTicketByCodeUsecase {
@@ -17,13 +19,21 @@ export class GetTicketByCodeUsecase {
       const ticket = await this.ticketRepository.findByCode(code);
 
       if (!ticket) {
-        throw new Error('Ticket not found');
+        throw new NotFoundError(
+          'Bilhete não encontrado',
+          'GetTicketByCodeUsecase',
+        );
       }
 
       return ticketToResponseMapper(ticket);
     } catch (error) {
-      console.error('GetTicketByCodeUsecase: ', error);
-      throw new Error(error.message);
+      if (error instanceof NotFoundError) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao buscar bilhete pelo código',
+        'GetTicketByCodeUsecase',
+      ).addCompleteError(error);
     }
   }
 }

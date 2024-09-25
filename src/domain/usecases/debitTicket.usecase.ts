@@ -21,6 +21,8 @@ import {
   TICKET_CREDIT_REPOSITORY,
   TicketCreditRepository,
 } from '@/domain/repositories/ticketCredit.respository';
+import { BadRequestError } from '@/domain/errors/badRequest.error';
+import { GenericError } from '@/domain/errors/generic.error';
 
 @Injectable()
 export class DebitTicketUsecase {
@@ -52,11 +54,14 @@ export class DebitTicketUsecase {
       ]);
 
       if (saleStandGoods.length < debitations.length) {
-        throw new Error('At least one good was not found');
+        throw new BadRequestError(
+          'Ao menos um item de sua compra não foi encontrado',
+          'DebitTicketUsecase',
+        );
       }
 
       if (!activeTickets.length) {
-        throw new Error('Ticket not found');
+        throw new BadRequestError('Bilhete não ativado', 'DebitTicketUsecase');
       }
 
       const [activeTicket] = activeTickets;
@@ -96,14 +101,11 @@ export class DebitTicketUsecase {
         return acc + saleStandGood.priceCents * ticket.quantity;
       }, 0);
 
-      console.log('ticketCredits:', activeTicketCredits);
-      console.log('ticketDebits:', activeTicketDebits);
-
       if (
         activeTicketCentsAmount <
         debitTotalCentsAmount + currentDebitsTotalCentsAmount
       ) {
-        throw new Error('Insufficient balance');
+        throw new BadRequestError('Saldo insuficiente', 'DebitTicketUsecase');
       }
 
       for (const ticket of debitations) {
@@ -112,7 +114,10 @@ export class DebitTicketUsecase {
         );
 
         if (saleStandGood.stock < ticket.quantity) {
-          throw new Error(`${saleStandGood.good.fullname} Out of stock`);
+          throw new BadRequestError(
+            `Quantidade insuficiente em estoque para ${saleStandGood.good.fullname}`,
+            'DebitTicketUsecase',
+          );
         }
       }
 
@@ -157,8 +162,13 @@ export class DebitTicketUsecase {
         debitation: debitTotalCentsAmount,
       };
     } catch (error) {
-      console.error('DebitTicket: ', error);
-      throw new Error(error.message);
+      if (error instanceof BadRequestError) {
+        throw error;
+      }
+      throw new GenericError(
+        'Erro ao debitar bilhete',
+        'DebitTicketUsecase',
+      ).addCompleteError(error);
     }
   }
 }
