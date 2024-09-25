@@ -21,14 +21,31 @@ export function generatePhysicalCode() {
 
 /**
  *
- * @returns a random decimal string of 6 characters
+ * @param length number (default 6)
+ * @returns random string of numbers
  */
-export function generateCode() {
+export function generateCode(length = 6) {
   const characters = '0123456789';
-  return genRandomString(6, characters);
+  return genRandomString(length, characters);
 }
 
+/**
+ *
+ * @returns random string of numbers and letters (upper and lower case)
+ */
 export function generateId() {
-  const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const characters =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
   return genRandomString(10, characters);
+}
+
+/**
+ *
+ * @param length number (default 10)
+ * @returns random string of numbers and letters (upper and lower case)
+ */
+export function generateToken(length = 10) {
+  const characters =
+    '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  return genRandomString(length, characters);
 }

@@ -1,7 +1,15 @@
 import { GetTicketEmojisToAuthenticateUsecase } from '@/domain/usecases/getTicketEmojisToAuthenticate.usecase';
 import { GetTicketByCodeUsecase } from '@/domain/usecases/getTicketByCode.usecase';
 import { GetActiveTicketBalanceUsecase } from '@/domain/usecases/getActiveTicketBalance.usecase';
-import { Controller, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { ActivateTicketUsecase } from '@/domain/usecases/activateTicket.usecase';
@@ -10,6 +18,7 @@ import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
 import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
 import { Request, Response } from 'express';
+import { TicketAuthGuard } from '@/infra/guards/ticketAuth.guard';
 
 @Controller('tickets')
 export class TicketsController {
@@ -89,6 +98,7 @@ export class TicketsController {
     });
   }
 
+  @UseGuards(TicketAuthGuard)
   @Post(':ticketId/debit')
   async debitTicket(@Req() req: Request, @Param() param: any) {
     const { ticketId } = param;
@@ -121,8 +131,9 @@ export class TicketsController {
   async getTicketAuthEmojis(@Req() req: Request, @Param() param: any) {
     const { code } = param;
 
-    const emojis =
-      await this.getTicketEmojisToAuthenticateUsecase.execute(code);
+    const emojis = await this.getTicketEmojisToAuthenticateUsecase.execute(
+      code,
+    );
     const emojisArray = Array.from(emojis);
 
     // retornar emojis como array em ordem aleatoria
