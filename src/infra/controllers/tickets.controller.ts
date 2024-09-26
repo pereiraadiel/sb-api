@@ -55,9 +55,16 @@ export class TicketsController {
       pdfBuffer = Buffer.concat(buffers);
     });
 
+    const freeMemory = () => {
+      pdfStream.destroy();
+      buffers.length = 0;
+      global.gc && global.gc();
+    };
+
     pdfStream.on('data', (chunk) => buffers.push(chunk));
     pdfStream.on('end', () => {
       pdfBuffer = Buffer.concat(buffers);
+      freeMemory();
       res.set({
         'Content-Type': 'application/pdf',
         'Content-Disposition': 'attachment; filename="bilhetes.pdf"',
@@ -124,7 +131,7 @@ export class TicketsController {
 
     return {
       ...ticket,
-      balance,
+      ...balance,
     };
   }
 

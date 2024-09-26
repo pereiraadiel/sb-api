@@ -25,7 +25,7 @@ export class GetActiveTicketBalanceUsecase {
     private readonly ticketDebitRepository: TicketDebitRepository,
   ) {}
 
-  async execute(code: string): Promise<number> {
+  async execute(code: string) {
     try {
       const activeTickets = await this.activeTicketRepository.findMany({
         ticketPhysicalCode: code,
@@ -44,12 +44,16 @@ export class GetActiveTicketBalanceUsecase {
       const [ticket] = activeTickets;
 
       const ticketCredits = await this.ticketCreditRepository.findMany({
-        expiresIn: { greaterThan: new Date() },
+        expiresIn: { greaterThan: ticket.createdAt },
+        createdAt: { greaterThan: ticket.createdAt },
         physicalCode: ticket.ticket.physicalCode,
       });
 
       if (ticketCredits.length === 0) {
-        return 0;
+        return {
+          balance: 0,
+          expiresIn: ticket.activeUntil,
+        };
       }
 
       // menor data de criação de um credito ativo
@@ -76,7 +80,12 @@ export class GetActiveTicketBalanceUsecase {
         0,
       );
 
-      return ticketCreditTotal - ticketDebitTotal;
+      const balance = ticketCreditTotal - ticketDebitTotal;
+
+      return {
+        balance,
+        expiresIn: ticket.activeUntil,
+      };
     } catch (error) {
       if (error instanceof BadRequestError) {
         throw error;

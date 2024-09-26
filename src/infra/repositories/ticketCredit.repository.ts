@@ -81,6 +81,9 @@ export class ConcreteTicketCreditRepository implements TicketCreditRepository {
                 physicalCode: filters.physicalCode,
               },
             },
+            createdAt: {
+              gte: filters.expiresIn.greaterThan,
+            },
             expiresIn: {
               gte: filters.expiresIn.greaterThan,
             },

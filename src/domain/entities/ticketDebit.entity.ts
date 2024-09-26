@@ -14,6 +14,6 @@ export class TicketDebitEntity {
 
   constructor(entity: TicketDebitEntity, id?: string) {
     Object.assign(this, entity);
-    this.id = id || generateId()
+    this.id = id || generateId();
   }
 }

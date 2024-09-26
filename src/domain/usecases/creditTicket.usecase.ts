@@ -37,8 +37,28 @@ export class CreditTicketUsecase {
 
       const [activeTicket] = activeTickets;
 
-      // creditos expiram em 72 horas
-      const expiresIn = new Date(Date.now() + 1000 * 60 * 60 * 72);
+      if (activeTicket.activeUntil < new Date()) {
+        throw new BadRequestError('Bilhete expirado', 'CreditTicketUsecase');
+      }
+
+      // se a diferença entre a data de expiração do bilhete e a data atual for menor que 1 hora não é possível creditar
+      const maxDiffInMinutes =
+        Number(process.env.MAX_EXPIRES_DIFF_IN_MINUTES) || 60;
+      const now = new Date();
+      const diff = activeTicket.activeUntil.getTime() - now.getTime();
+      if (diff < 1000 * 60 * maxDiffInMinutes) {
+        throw new BadRequestError(
+          `Bilhete expira em menos de ${maxDiffInMinutes} minutos`,
+          'CreditTicketUsecase',
+        );
+      }
+
+      // creditos expiram em 72 horas ou na data de expiração do bilhete (o que ocorrer primeiro)
+      const nowPlus72Hours = new Date(Date.now() + 1000 * 60 * 60 * 72);
+      const expiresIn =
+        nowPlus72Hours < activeTicket.activeUntil
+          ? nowPlus72Hours
+          : activeTicket.activeUntil;
 
       const newTicketCredit = await this.ticketCreditRepository.create({
         ...ticket,

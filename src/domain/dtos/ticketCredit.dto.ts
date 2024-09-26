@@ -10,4 +10,7 @@ export type TicketCreditFiltersDto = {
   expiresIn: {
     greaterThan: Date;
   };
+  createdAt: {
+    greaterThan: Date;
+  };
 };
