@@ -19,6 +19,7 @@ import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
 import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
 import { Request, Response } from 'express';
 import { TicketAuthGuard } from '@/infra/guards/ticketAuth.guard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('tickets')
 export class TicketsController {
@@ -35,6 +36,7 @@ export class TicketsController {
   ) {}
 
   @Post()
+  @Throttle({ default: { limit: 1, ttl: 5 * 60 * 1000 } })
   async createTickets(@Req() req: Request) {
     const { body } = req;
     const { quantity } = body as any;
@@ -42,6 +44,7 @@ export class TicketsController {
   }
 
   @Get('physical')
+  @Throttle({ default: { limit: 1, ttl: 5 * 60 * 1000 } })
   async getPhysicalTickets(@Res() res: Response) {
     const pdfStream = await this.generatePhysicalTickets.execute();
     const buffers = [];
@@ -76,6 +79,7 @@ export class TicketsController {
   }
 
   @Post(':code/activate')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async activateTicket(@Req() req: Request, @Param() param: any) {
     console.log('activateTicket');
     const { code } = param;
@@ -86,6 +90,7 @@ export class TicketsController {
   }
 
   @Post(':code/authenticate')
+  @Throttle({ default: { limit: 3, ttl: 1 * 60 * 1000 } })
   async authenticateTicket(@Req() req: Request, @Param() param: any) {
     const { code } = param;
     const { body } = req;
@@ -95,6 +100,7 @@ export class TicketsController {
   }
 
   @Post(':code/credit')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async creditTicket(@Req() req: Request, @Param() param: any) {
     const { code } = param;
     const { body } = req;
@@ -108,6 +114,7 @@ export class TicketsController {
 
   @UseGuards(TicketAuthGuard)
   @Post(':ticketId/debit')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async debitTicket(@Req() req: Request, @Param() param: any) {
     const { ticketId } = param;
     const { body } = req;
@@ -124,6 +131,7 @@ export class TicketsController {
   }
 
   @Get(':code')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async getTicket(@Req() req: Request, @Param() param: any) {
     const { code } = param;
     const balance = await this.getActiveTicketBalanceUsecase.execute(code);
@@ -136,6 +144,9 @@ export class TicketsController {
   }
 
   @Get(':code/emojis')
+  @Throttle({
+    default: { limit: 3, ttl: 1 * 60 * 1000, blockDuration: 1 * 30 * 1000 },
+  }) // 3 requests per minute with a block of 30 seconds
   async getTicketAuthEmojis(@Req() req: Request, @Param() param: any) {
     const { code } = param;
 
@@ -149,6 +160,7 @@ export class TicketsController {
   }
 
   @Get(':code/balance')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async getTicketBalance(@Req() req: Request, @Param() param: any) {
     const { code } = param;
 

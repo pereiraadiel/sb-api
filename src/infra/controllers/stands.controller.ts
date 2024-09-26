@@ -1,3 +1,4 @@
+import { Throttle } from '@nestjs/throttler';
 import { Controller, Param, Post, Req } from '@nestjs/common';
 
 import { CreateSaleStandUsecase } from '@/domain/usecases/createStand.usecase';
@@ -13,6 +14,7 @@ export class StandsController {
   ) {}
 
   @Post()
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async createStands(@Req() req: Request) {
     const { body } = req;
     const { category, fullname } = body as any;
@@ -23,6 +25,7 @@ export class StandsController {
   }
 
   @Post(':id/goods')
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async associateGood(@Req() req: Request, @Param() params: any) {
     const { body } = req;
     const { goodId, priceCents, stock } = body as any;
@@ -37,6 +40,7 @@ export class StandsController {
   }
 
   @Post('auth')
+  @Throttle({ default: { limit: 3, ttl: 1 * 60 * 1000 } })
   async authenticate(@Req() req: Request) {
     const { body } = req;
     const { code } = body as any;

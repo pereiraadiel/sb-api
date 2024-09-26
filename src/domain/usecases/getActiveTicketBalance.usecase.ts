@@ -44,7 +44,7 @@ export class GetActiveTicketBalanceUsecase {
       const [ticket] = activeTickets;
 
       const ticketCredits = await this.ticketCreditRepository.findMany({
-        expiresIn: { greaterThan: ticket.createdAt },
+        expiresIn: { greaterThan: new Date() },
         createdAt: { greaterThan: ticket.createdAt },
         physicalCode: ticket.ticket.physicalCode,
       });
