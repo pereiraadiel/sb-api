@@ -6,6 +6,7 @@ import { ServicesModule } from './services.module';
 import { GetTicketByCodeUsecase } from '@/domain/usecases/getTicketByCode.usecase';
 import { ActivateTicketUsecase } from '@/domain/usecases/activateTicket.usecase';
 import { AssociateGoodToSaleStand } from '@/domain/usecases/associateGoodToSaleStand.usecase';
+import { AuthenticateAdminUsecase } from '@/domain/usecases/authenticateAdmin.usecase';
 import { AuthenticateSaleStand } from '@/domain/usecases/authenticateSaleStand.usecase';
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { CreateGoodUsecase } from '@/domain/usecases/createGood.usecase';
@@ -23,6 +24,7 @@ const useCases = [
   AssociateGoodToSaleStand,
   AuthenticateSaleStand,
   AuthenticateTicketUsecase,
+  AuthenticateAdminUsecase,
   CreateGoodUsecase,
   CreateSaleStandUsecase,
   CreateTicketsUsecase,
