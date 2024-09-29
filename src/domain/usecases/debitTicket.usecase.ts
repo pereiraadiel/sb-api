@@ -77,7 +77,7 @@ export class DebitTicketUsecase {
       const earliestCreditDate = activeTicketCredits.reduce(
         (acc, ticketCredit) =>
           ticketCredit.createdAt < acc ? ticketCredit.createdAt : acc,
-        activeTicketCredits[0].createdAt,
+        new Date(),
       );
 
       const activeTicketDebits = activeTicket.debits.filter(

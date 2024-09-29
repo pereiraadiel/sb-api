@@ -10,6 +10,8 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { Request, Response } from 'express';
 
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { ActivateTicketUsecase } from '@/domain/usecases/activateTicket.usecase';
@@ -17,9 +19,8 @@ import { CreateTicketsUsecase } from '@/domain/usecases/createTickets.usecase';
 import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
 import { GeneratePhysicalTicketsUsecase } from '@/domain/usecases/generatePhysicalTickets.usecase';
-import { Request, Response } from 'express';
 import { TicketAuthGuard } from '@/infra/guards/ticketAuth.guard';
-import { Throttle } from '@nestjs/throttler';
+import { AdminAuthGuard } from '@/infra/guards/adminAuth.guard';
 
 @Controller('tickets')
 export class TicketsController {
@@ -36,7 +37,8 @@ export class TicketsController {
   ) {}
 
   @Post()
-  @Throttle({ default: { limit: 1, ttl: 5 * 60 * 1000 } })
+  @Throttle({ default: { limit: 1, ttl: 1 * 60 * 1000 } })
+  @UseGuards(AdminAuthGuard)
   async createTickets(@Req() req: Request) {
     const { body } = req;
     const { quantity } = body as any;
@@ -44,7 +46,8 @@ export class TicketsController {
   }
 
   @Get('physical')
-  @Throttle({ default: { limit: 1, ttl: 5 * 60 * 1000 } })
+  @Throttle({ default: { limit: 1, ttl: 1 * 60 * 1000 } })
+  @UseGuards(AdminAuthGuard)
   async getPhysicalTickets(@Res() res: Response) {
     const pdfStream = await this.generatePhysicalTickets.execute();
     const buffers = [];

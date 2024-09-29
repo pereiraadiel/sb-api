@@ -1,9 +1,10 @@
 import { Throttle } from '@nestjs/throttler';
-import { Controller, Param, Post, Req } from '@nestjs/common';
+import { Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
 
 import { CreateSaleStandUsecase } from '@/domain/usecases/createStand.usecase';
 import { AssociateGoodToSaleStand } from '@/domain/usecases/associateGoodToSaleStand.usecase';
 import { AuthenticateSaleStand } from '@/domain/usecases/authenticateSaleStand.usecase';
+import { AdminAuthGuard } from '@/infra/guards/adminAuth.guard';
 
 @Controller('stands')
 export class StandsController {
@@ -15,6 +16,7 @@ export class StandsController {
 
   @Post()
   @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
+  @UseGuards(AdminAuthGuard)
   async createStands(@Req() req: Request) {
     const { body } = req;
     const { category, fullname } = body as any;
@@ -26,6 +28,7 @@ export class StandsController {
 
   @Post(':id/goods')
   @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
+  @UseGuards(AdminAuthGuard)
   async associateGood(@Req() req: Request, @Param() params: any) {
     const { body } = req;
     const { goodId, priceCents, stock } = body as any;

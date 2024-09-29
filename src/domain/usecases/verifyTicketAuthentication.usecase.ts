@@ -19,6 +19,9 @@ export class VerifyTicketAuthenticationUsecase {
 
   async execute(code: string): Promise<TicketEntity | false> {
     try {
+      if (code.length !== 32) {
+        return false;
+      }
       const ticketId = await this.cacheService.get(code);
       console.log('ticketId', ticketId);
       if (!ticketId) {
