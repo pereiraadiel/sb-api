@@ -82,10 +82,10 @@ export class ConcreteTicketCreditRepository implements TicketCreditRepository {
               },
             },
             createdAt: {
-              gte: filters.expiresIn.greaterThan,
+              gt: filters.expiresIn.greaterThan,
             },
             expiresIn: {
-              gte: filters.expiresIn.greaterThan,
+              gt: filters.expiresIn.greaterThan,
             },
           },
         },

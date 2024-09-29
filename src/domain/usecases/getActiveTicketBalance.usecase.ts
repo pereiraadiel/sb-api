@@ -43,11 +43,18 @@ export class GetActiveTicketBalanceUsecase {
 
       const [ticket] = activeTickets;
 
-      const ticketCredits = await this.ticketCreditRepository.findMany({
-        expiresIn: { greaterThan: new Date() },
-        createdAt: { greaterThan: ticket.createdAt },
-        physicalCode: ticket.ticket.physicalCode,
-      });
+      // const ticketCredits = await this.ticketCreditRepository.findMany({
+      //   expiresIn: { greaterThan: new Date() },
+      //   createdAt: { greaterThan: ticket.createdAt },
+      //   physicalCode: ticket.ticket.physicalCode,
+      // });
+
+      const ticketCredits = ticket.credits.filter(
+        (item) =>
+          item.expiresIn > new Date() && item.createdAt > ticket.createdAt,
+      );
+
+      console.log('ticketCredits', ticketCredits, ticket);
 
       if (ticketCredits.length === 0) {
         return {
@@ -60,7 +67,7 @@ export class GetActiveTicketBalanceUsecase {
       const earliestCreditDate = ticketCredits.reduce(
         (acc, ticketCredit) =>
           ticketCredit.createdAt < acc ? ticketCredit.createdAt : acc,
-        ticketCredits[0].createdAt,
+        new Date(),
       );
 
       const ticketDebits = await this.ticketDebitRepository.findMany({
