@@ -46,14 +46,16 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
   ): Promise<ActiveTicketEntity[]> {
     try {
       const activeTickets = await this.prisma.activeTicket.findMany({
-        where: {
-          ticket: {
-            physicalCode: filters.ticketPhysicalCode,
-          },
-          activeUntil: {
-            gte: filters.activeUntil.greaterThan,
-          },
-        },
+        where: filters
+          ? {
+              ticket: {
+                physicalCode: filters.ticketPhysicalCode,
+              },
+              activeUntil: {
+                gte: filters.activeUntil.greaterThan,
+              },
+            }
+          : undefined,
         include: {
           ticket: true,
           credits: true,
@@ -66,6 +68,29 @@ export class ConcreteActiveTicketRepository implements ActiveTicketRepository {
       return activeTickets.map(
         (activeTicket) => new ActiveTicketEntity(activeTicket, activeTicket.id),
       );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async count(filters: ActiveTicketFiltersDto): Promise<number> {
+    try {
+      const activeTickets = await this.prisma.activeTicket.count({
+        where: filters
+          ? {
+              ticket: {
+                physicalCode: filters.ticketPhysicalCode,
+              },
+              activeUntil: {
+                gte: filters.activeUntil.greaterThan,
+              },
+            }
+          : undefined,
+      });
+
+      if (!activeTickets) return 0;
+
+      return activeTickets;
     } catch (error) {
       throw error;
     }

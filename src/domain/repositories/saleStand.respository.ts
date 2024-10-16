@@ -7,4 +7,5 @@ export interface SaleStandRepository {
   create(saleStand: CreateSaleStandDto): Promise<SaleStandEntity>;
   findById(id: string): Promise<SaleStandEntity | null>;
   findByCode(code: string): Promise<SaleStandEntity | null>;
+  findMany(): Promise<SaleStandEntity[]>;
 }

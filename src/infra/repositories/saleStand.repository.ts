@@ -67,4 +67,27 @@ export class ConcreteSaleStandRepository implements SaleStandRepository {
       throw error;
     }
   }
+
+  async findMany(): Promise<SaleStandEntity[]> {
+    try {
+      const saleStandEntities = await this.prisma.saleStand.findMany({
+        include: {
+          goods: {
+            include: {
+              good: true,
+            },
+          },
+        },
+      });
+
+      if (!saleStandEntities) return [];
+
+      return saleStandEntities.map(
+        (saleStandEntity) =>
+          new SaleStandEntity(saleStandEntity, saleStandEntity.id),
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
 }

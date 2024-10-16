@@ -68,4 +68,14 @@ export class ConcreteTicketRepository implements TicketRepository {
       throw error;
     }
   }
+
+  async count() {
+    try {
+      const tickets = await this.prisma.ticket.count();
+
+      return tickets;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

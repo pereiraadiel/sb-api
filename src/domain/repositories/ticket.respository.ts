@@ -8,4 +8,5 @@ export interface TicketRepository {
   findByCode(code: string): Promise<TicketEntity | null>;
   findById(id: string): Promise<TicketEntity | null>;
   findMany(): Promise<TicketEntity[]>;
+  count(): Promise<number>;
 }

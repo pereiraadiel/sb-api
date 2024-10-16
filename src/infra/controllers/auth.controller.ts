@@ -10,7 +10,7 @@ export class AuthController {
   ) {}
 
   @Post()
-  @Throttle({ default: { limit: 3, ttl: 15 * 60 * 1000 } })
+  // @Throttle({ default: { limit: 3, ttl: 15 * 60 * 1000 } })
   async authenticateAdmin(@Req() req: Request) {
     const { body } = req;
     const { code } = body as any;

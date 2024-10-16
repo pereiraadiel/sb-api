@@ -7,5 +7,6 @@ import {
 export const ACTIVE_TICKET_REPOSITORY = 'ACTIVE_TICKET_REPOSITORY';
 export interface ActiveTicketRepository {
   create(ticket: CreateActiveTicketDto): Promise<ActiveTicketEntity>;
-  findMany(filters: ActiveTicketFiltersDto): Promise<ActiveTicketEntity[]>;
+  findMany(filters?: ActiveTicketFiltersDto): Promise<ActiveTicketEntity[]>;
+  count(filters?: ActiveTicketFiltersDto): Promise<number>;
 }

@@ -1,7 +1,8 @@
 import { Throttle } from '@nestjs/throttler';
-import { Controller, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 
 import { CreateSaleStandUsecase } from '@/domain/usecases/createStand.usecase';
+import { GetAllSaleStandsUsecase } from '@/domain/usecases/getAllStands.usecase';
 import { AssociateGoodToSaleStand } from '@/domain/usecases/associateGoodToSaleStand.usecase';
 import { AuthenticateSaleStand } from '@/domain/usecases/authenticateSaleStand.usecase';
 import { AdminAuthGuard } from '@/infra/guards/adminAuth.guard';
@@ -10,6 +11,7 @@ import { AdminAuthGuard } from '@/infra/guards/adminAuth.guard';
 export class StandsController {
   constructor(
     private readonly createStandUsecase: CreateSaleStandUsecase,
+    private readonly getAllStandsUsecase: GetAllSaleStandsUsecase,
     private readonly associateGoodToSaleStand: AssociateGoodToSaleStand,
     private readonly authenticateSaleStand: AuthenticateSaleStand,
   ) {}
@@ -24,6 +26,13 @@ export class StandsController {
       category,
       fullname,
     });
+  }
+
+  @Get()
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
+  @UseGuards(AdminAuthGuard)
+  async getAllStands() {
+    return await this.getAllStandsUsecase.execute();
   }
 
   @Post(':id/goods')

@@ -11,6 +11,7 @@ import { AuthenticateSaleStand } from '@/domain/usecases/authenticateSaleStand.u
 import { AuthenticateTicketUsecase } from '@/domain/usecases/authenticateTicket.usecase';
 import { CreateGoodUsecase } from '@/domain/usecases/createGood.usecase';
 import { CreateSaleStandUsecase } from '@/domain/usecases/createStand.usecase';
+import { GetAllSaleStandsUsecase } from '@/domain/usecases/getAllStands.usecase';
 import { CreateTicketsUsecase } from '@/domain/usecases/createTickets.usecase';
 import { CreditTicketUsecase } from '@/domain/usecases/creditTicket.usecase';
 import { DebitTicketUsecase } from '@/domain/usecases/debitTicket.usecase';
@@ -28,6 +29,7 @@ const useCases = [
   AuthenticateAdminUsecase,
   CreateGoodUsecase,
   CreateSaleStandUsecase,
+  GetAllSaleStandsUsecase,
   CreateTicketsUsecase,
   CreditTicketUsecase,
   DebitTicketUsecase,
