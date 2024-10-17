@@ -12,6 +12,6 @@ export class SaleStandEntity {
 
   constructor(entity: SaleStandEntity, id?: string) {
     Object.assign(this, entity);
-    this.id = id || generateId()
+    this.id = id || generateId();
   }
 }

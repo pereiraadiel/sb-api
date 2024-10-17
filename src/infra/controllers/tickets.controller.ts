@@ -93,7 +93,7 @@ export class TicketsController {
   }
 
   @Post(':code/authenticate')
-  @Throttle({ default: { limit: 3, ttl: 1 * 60 * 1000 } })
+  @Throttle({ default: { limit: 10, ttl: 1 * 60 * 1000 } })
   async authenticateTicket(@Req() req: Request, @Param() param: any) {
     const { code } = param;
     const { body } = req;
@@ -148,8 +148,8 @@ export class TicketsController {
 
   @Get(':code/emojis')
   @Throttle({
-    default: { limit: 3, ttl: 1 * 60 * 1000, blockDuration: 1 * 30 * 1000 },
-  }) // 3 requests per minute with a block of 30 seconds
+    default: { limit: 10, ttl: 1 * 60 * 1000, blockDuration: 1 * 30 * 1000 },
+  }) // 10 requests per minute with a block of 30 seconds
   async getTicketAuthEmojis(@Req() req: Request, @Param() param: any) {
     const { code } = param;
 

@@ -8,7 +8,7 @@ import { APP_GUARD } from '@nestjs/core';
     ControllersModule,
     ThrottlerModule.forRoot([
       {
-        ttl: 60 * 60 * 1000, // 1 hour
+        ttl: 60 * 1000, // 1 minute
         limit: 10,
       },
     ]),
